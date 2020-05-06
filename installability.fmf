@@ -25,7 +25,7 @@ prepare:
         [ -z "$RELEASE_ID" ] && { echo "RELEASE_ID missing in the environment"; exit 1; }
 
         # install installability test
-        rpm -ivh http://hdn.corp.redhat.com/rhel7-csb-stage/RPMS/noarch/redhat-internal-cert-install-0.1-15.el7.csb.noarch.rpm
+        # TODO: Move to Fedora COPR
         curl -Lo /etc/yum.repos.d/mini-tps.repo https://copr.devel.redhat.com/coprs/astepano/mini-tps/repo/rhel-8.dev/astepano-mini-tps.repo
         dnf install -y mini-tps
 
