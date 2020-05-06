@@ -1,5 +1,5 @@
 summary: TMT/FMF plan for running installability test.
-description: Run installability test. Requires TASK_ID to be set in environment.
+description: Run installability test.
 
 provision:
     how: libvirt
