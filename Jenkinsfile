@@ -55,8 +55,10 @@ pipeline {
                 script {
 
                     def additionalArtifacts = []
-                    params.ADDITIONAL_ARTIFACT_IDS?.split(',').each { additionalArtifactId ->
-                        additionalArtifacts.add([id: "${additionalArtifactId.split(':')[1]}", type: 'fedora-koji-build'])
+                    if (params.ADDITIONAL_ARTIFACT_IDS) {
+                        params.ADDITIONAL_ARTIFACT_IDS.split(',').each { additionalArtifactId ->
+                            additionalArtifacts.add([id: "${additionalArtifactId.split(':')[1]}", type: 'fedora-koji-build'])
+                        }
                     }
 
                     def requestPayload = """
