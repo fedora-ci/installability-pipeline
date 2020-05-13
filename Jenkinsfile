@@ -2,6 +2,9 @@
 
 @Library('fedora-pipeline-library@prototype') _
 
+import groovy.json.JsonOutput
+
+
 def pipelineMetadata = [
     pipelineName: 'installability',
     pipelineDescription: 'Installability Test',
