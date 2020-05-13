@@ -8,8 +8,8 @@ import groovy.json.JsonOutput
 def pipelineMetadata = [
     pipelineName: 'installability',
     pipelineDescription: 'Installability Test',
-    testCategory: 'integration',
-    testType: 'tier1',
+    testCategory: 'functional',
+    testType: 'installability',
     maintainer: 'Fedora CI',
     docs: 'https://github.com/fedora-ci/installability-pipeline',
     contact: [
