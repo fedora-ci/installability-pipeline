@@ -30,6 +30,7 @@ pipeline {
 
     parameters {
         string(name: 'ARTIFACT_ID', defaultValue: null, trim: true, description: '"koji-build:<taskId>" for Koji builds; Example: koji-build:42376994')
+        string(name: 'ADDITIONAL_ARTIFACT_IDS', defaultValue: null, trim: true, description: 'A comma-separated list of additional ARTIFACT_IDs')
     }
 
     stages {
@@ -52,6 +53,12 @@ pipeline {
                 sendMessage(type: 'running', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
 
                 script {
+
+                    def additionalArtifacts = []
+                    params.ADDITIONAL_ARTIFACT_IDS?.split(',').each { additionalArtifactId ->
+                        additionalArtifacts.add([id: "${additionalArtifactId.split(':')[1]}", type: 'fedora-koji-build'])
+                    }
+
                     def requestPayload = """
                         {
                             "api_key": "xxx",
@@ -69,7 +76,8 @@ pipeline {
                                 "variables": {
                                     "RELEASE_ID": "${getReleaseIdFromBranch()}",
                                     "TASK_ID": "${artifactId.split(':')[1]}"
-                                }
+                                },
+                                "artifacts": "${JsonOutput.toJson(additionalArtifacts)}"
                             }
                         }
                     """
