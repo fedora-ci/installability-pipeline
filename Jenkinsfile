@@ -2,6 +2,9 @@
 
 @Library('fedora-pipeline-library@prototype') _
 
+import groovy.json.JsonBuilder
+
+
 def pipelineMetadata = [
     pipelineName: 'installability',
     pipelineDescription: 'Test whether RPM packages can be installed, upgraded, downgraded and removed.',
