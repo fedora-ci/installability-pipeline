@@ -2,12 +2,9 @@
 
 @Library('fedora-pipeline-library@prototype') _
 
-import groovy.json.JsonOutput
-
-
 def pipelineMetadata = [
     pipelineName: 'installability',
-    pipelineDescription: 'Installability Test',
+    pipelineDescription: 'Test whether RPM packages can be installed, upgraded, downgraded and removed.',
     testCategory: 'functional',
     testType: 'installability',
     maintainer: 'Fedora CI',
@@ -18,22 +15,28 @@ def pipelineMetadata = [
     ],
 ]
 def artifactId
+def additionalArtifactIds
+def testingFarmRequestId
 def testingFarmResult
+def xunit
 
 
 pipeline {
 
+    agent { label 'master' }
+
     options {
         buildDiscarder(logRotator(daysToKeepStr: '180', artifactNumToKeepStr: '100'))
-    }
-
-    agent {
-        label 'fedora-ci-agent'
+        timeout(time: 4, unit: 'HOURS')
     }
 
     parameters {
-        string(name: 'ARTIFACT_ID', defaultValue: null, trim: true, description: '"koji-build:<taskId>" for Koji builds; Example: koji-build:42376994')
-        string(name: 'ADDITIONAL_ARTIFACT_IDS', defaultValue: null, trim: true, description: 'A comma-separated list of additional ARTIFACT_IDs')
+        string(name: 'ARTIFACT_ID', defaultValue: '', trim: true, description: '"koji-build:&lt;taskId&gt;" for Koji builds; Example: koji-build:46436038')
+        string(name: 'ADDITIONAL_ARTIFACT_IDS', defaultValue: '', trim: true, description: 'A comma-separated list of additional ARTIFACT_IDs')
+    }
+
+    environment {
+        TESTING_FARM_API_KEY = credentials('testing-farm-api-key')
     }
 
     stages {
@@ -41,55 +44,67 @@ pipeline {
             steps {
                 script {
                     artifactId = params.ARTIFACT_ID
+                    additionalArtifactIds = params.ADDITIONAL_ARTIFACT_IDS
+                    setBuildNameFromArtifactId(artifactId: artifactId)
 
                     if (!artifactId) {
                         abort('ARTIFACT_ID is missing')
                     }
                 }
-                setBuildNameFromArtifactId(artifactId: artifactId)
                 sendMessage(type: 'queued', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
             }
         }
 
-        stage('Test') {
+        stage('Schedule Test') {
             steps {
-                sendMessage(type: 'running', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
-
+                sendMessage(type: 'queued', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
                 script {
-
-                    def additionalArtifacts = []
-                    if (params.ADDITIONAL_ARTIFACT_IDS) {
-                        params.ADDITIONAL_ARTIFACT_IDS.split(',').each { additionalArtifactId ->
-                            additionalArtifacts.add([id: "${additionalArtifactId.split(':')[1]}", type: 'fedora-koji-build'])
-                        }
+                    def artifacts = []
+                    getIdFromArtifactId(artifactId: artifactId, additionalArtifactIds: additionalArtifactIds).split(',').each { taskId ->
+                        artifacts.add([id: "${taskId}", type: "fedora-koji-build"])
                     }
 
                     def requestPayload = """
                         {
-                            "api_key": "xxx",
+                            "api_key": "${env.TESTING_FARM_API_KEY}",
                             "test": {
-                                "fmf": {
-                                    "url": "${getGitUrl()}",
-                                    "ref": "${getGitRef()}",
+                                "${testType}": {
+                                    "url": "${repoUrl}",
+                                    "ref": "master"
                                 }
-                            }
-                            "environments": {
-                                "arch": "x86_64",
-                                "os": {
-                                    "compose": "${getReleaseIdFromBranch}"
-                                },
-                                "variables": {
-                                    "RELEASE_ID": "${getReleaseIdFromBranch()}",
-                                    "TASK_ID": "${artifactId.split(':')[1]}"
-                                },
-                                "artifacts": "${JsonOutput.toJson(additionalArtifacts)}"
-                            }
+                            },
+                            "environments": [
+                                {
+                                    "arch": "x86_64",
+                                    "os": {
+                                        "compose": "Fedora-Rawhide"
+                                    },
+                                    "variables": {
+                                        "RELEASE_ID": "${getReleaseIdFromBranch()}",
+                                        "TASK_ID": "${getIdFromArtifactId(artifactId: artifactId)}",
+                                        "ADDITIONAL_TASK_IDS": "${getIdFromArtifactId(additionalArtifactIds: additionalArtifactIds, separator: ' ')}",
+                                    },
+                                    "artifacts": ${new JsonBuilder( artifacts ).toPrettyString()}
+                                }
+                            ]
                         }
                     """
-                    // def response = submitTestingFarmRequest(payload: requestPayload)
-                    // testingFarmResult = waitForTestingFarmResults(requestId: response['id'], timeout: 30)
+                    echo "${requestPayload}"
+                    def response = submitTestingFarmRequest(payload: requestPayload)
+                    sendMessage(type: 'running', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
+                    testingFarmResult = waitForTestingFarmResults(requestId: response['id'], timeout: 60)
+                    xunit = testingFarmResult.get('result', [:]).get('xunit', '')
+                    evaluateTestingFarmResults(testingFarmResult)
+                }
+            }
+        }
 
-                    // evaluateTestingFarmResults(testingFarmResult)
+        stage('Wait for Test Results') {
+            steps {
+                script {
+                    testingFarmResult = waitForTestingFarmResults(requestId: testingFarmRequestId, timeout: 60)
+                    xunit = testingFarmResult.get('result', [:]).get('xunit', '')
+                    evaluateTestingFarmResults(testingFarmResult)
                 }
             }
         }
@@ -97,21 +112,25 @@ pipeline {
 
     post {
         always {
-            echo 'No Testing Farm, nothing to archive.'
+            // Show XUnit results in Jenkins, if possible
+            script {
+                if (testingFarmResult) {
+                    node('fedora-ci-agent') {
+                        writeFile file: 'tfxunit.xml', text: "${xunit}"
+                        sh script: "tfxunit2junit --docs-url ${pipelineMetadata['docs']} tfxunit.xml > xunit.xml"
+                        junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'xunit.xml')
+                    }
+                }
+            }
         }
         success {
-            sendMessage(type: 'complete', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
+            sendMessage(type: 'complete', artifactId: artifactId, pipelineMetadata: pipelineMetadata, xunit: xunit, dryRun: isPullRequest())
         }
         failure {
             sendMessage(type: 'error', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
-            echo """
-*******************************************************************************************************************
-Testing Farm is not up and running yet so this test will always fail. You can safely ignore it now. But stay tuned!
-*******************************************************************************************************************
-            """
         }
         unstable {
-            sendMessage(type: 'complete', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
+            sendMessage(type: 'complete', artifactId: artifactId, pipelineMetadata: pipelineMetadata, xunit: xunit, dryRun: isPullRequest())
         }
     }
 }
