@@ -70,6 +70,12 @@ pipeline {
                     def requestPayload = """
                         {
                             "api_key": "${env.TESTING_FARM_API_KEY}",
+                            "test": {
+                                "${testType}": {
+                                    "url": "${repoUrl}",
+                                    "ref": "master"
+                                }
+                            },
                             "environments": [
                                 {
                                     "arch": "x86_64",
