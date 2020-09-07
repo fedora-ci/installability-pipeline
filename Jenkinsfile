@@ -71,9 +71,9 @@ pipeline {
                         {
                             "api_key": "${env.TESTING_FARM_API_KEY}",
                             "test": {
-                                "${testType}": {
+                                "fmf": {
                                     "url": "${repoUrl}",
-                                    "ref": "master"
+                                    "ref": "${getGitRef()}"
                                 }
                             },
                             "environments": [
