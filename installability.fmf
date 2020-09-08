@@ -42,7 +42,6 @@ prepare:
         cat << EOF > /usr/local/libexec/mini-tps/installability_runner.sh
         #!/bin/bash
         set -e
-        set -x
         . /var/tmp/mini-tps/env
         mtps-run-tests \$@
         EOF
