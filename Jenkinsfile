@@ -85,7 +85,7 @@ pipeline {
                                     "variables": {
                                         "RELEASE_ID": "${getReleaseIdFromBranch()}",
                                         "TASK_ID": "${getIdFromArtifactId(artifactId: artifactId)}",
-                                        "ADDITIONAL_TASK_IDS": "${getIdFromArtifactId(additionalArtifactIds: additionalArtifactIds, separator: ' ')}",
+                                        "ADDITIONAL_TASK_IDS": "${getIdFromArtifactId(additionalArtifactIds: additionalArtifactIds, separator: ' ')}"
                                     },
                                     "artifacts": ${new JsonBuilder( artifacts ).toPrettyString()}
                                 }
