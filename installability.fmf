@@ -24,6 +24,10 @@ prepare:
         [ -z "$TASK_ID" ] && { echo "TASK_ID missing in the environment"; exit 1; }
         [ -z "$RELEASE_ID" ] && { echo "RELEASE_ID missing in the environment"; exit 1; }
 
+        pwd
+
+        ls -la
+
         ./prepare.sh
 
 execute:
