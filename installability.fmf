@@ -8,13 +8,13 @@ discover:
     how: shell
     tests:
         - name: install
-          test:  . /var/tmp/mtps/env && mtps-run-tests --critical --selinux=1 --test=install --repo=brew-$TASK_ID
+          test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=install --repo=brew-$TASK_ID
         - name: upgrade
-          test: . /var/tmp/mtps/env && mtps-run-tests --critical --selinux=1 --test=upgrade --repo=brew-$TASK_ID
+          test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=upgrade --repo=brew-$TASK_ID
         - name: downgrade
-          test: . /var/tmp/mtps/env && mtps-run-tests --critical --selinux=1 --test=downgrade --repo=brew-$TASK_ID
+          test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=downgrade --repo=brew-$TASK_ID
         - name: remove
-          test: . /var/tmp/mtps/env && mtps-run-tests --critical --selinux=1 --test=remove --repo=brew-$TASK_ID
+          test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=remove --repo=brew-$TASK_ID
 
 prepare:
     how: shell
@@ -24,16 +24,31 @@ prepare:
         [ -z "$TASK_ID" ] && { echo "TASK_ID missing in the environment"; exit 1; }
         [ -z "$RELEASE_ID" ] && { echo "RELEASE_ID missing in the environment"; exit 1; }
 
+        # FIXME: this shouldn't be here: https://github.com/fedora-ci/installability-pipeline/pull/2
+
         # install mini-tps
         curl -Lo /etc/yum.repos.d/mini-tps.repo https://copr.fedorainfracloud.org/coprs/msrb/mini-tps/repo/fedora-rawhide/msrb-mini-tps-fedora-rawhide.repo
         dnf install -y mini-tps
 
         # make sure mini-tps can find Koji
         # TODO: can mini-tps RPM package provide this configuration automatically?
-        mkdir -p /var/tmp/mtps/
-        echo "export BREWHUB=https://koji.fedoraproject.org/kojihub" > /var/tmp/mtps/env
-        echo "export BREWROOT=https://kojipkgs.fedoraproject.org" >> /var/tmp/mtps/env
-        . /var/tmp/mtps/env
+        mkdir -p /var/tmp/mini-tps/ /usr/local/libexec/mini-tps/
+
+        cat << EOF > /var/tmp/mini-tps/env
+        export BREWHUB=https://koji.fedoraproject.org/kojihub
+        export BREWROOT=https://kojipkgs.fedoraproject.org
+        EOF
+
+        cat << EOF > /usr/local/libexec/mini-tps/installability_runner.sh
+        #!/bin/bash
+        set -e
+        set -x
+        . /var/tmp/mini-tps/env
+        mtps-run-tests \$@
+        EOF
+        chmod +x /usr/local/libexec/mini-tps/installability_runner.sh
+
+        . /var/tmp/mini-tps/env
 
         # prepare the system for testing
         mtps-prepare-system -p fedora-${RELEASE_ID:1} --fixrepo --enablebuildroot
