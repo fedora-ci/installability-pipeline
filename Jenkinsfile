@@ -4,7 +4,6 @@
 
 import groovy.json.JsonBuilder
 
-
 def pipelineMetadata = [
     pipelineName: 'installability',
     pipelineDescription: 'Test whether RPM packages can be installed, upgraded, downgraded and removed.',
@@ -92,13 +91,10 @@ pipeline {
                             ]
                         }
                     """
-                    echo "${requestPayload}"
                     def response = submitTestingFarmRequest(payload: requestPayload)
-                    sendMessage(type: 'running', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
-                    testingFarmResult = waitForTestingFarmResults(requestId: response['id'], timeout: 60)
-                    xunit = testingFarmResult.get('result', [:]).get('xunit', '')
-                    evaluateTestingFarmResults(testingFarmResult)
+                    testingFarmRequestId = response['id']
                 }
+                sendMessage(type: 'running', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
             }
         }
 
