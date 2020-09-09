@@ -1,5 +1,5 @@
-summary: TMT/FMF plan for running installability test.
-description: Run installability test.
+summary: TMT/FMF plan for running the installability tests.
+description: Run installability tests.
 
 provision:
     how: libvirt
@@ -7,14 +7,18 @@ provision:
 discover:
     how: shell
     tests:
-        - name: install
-          test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=install --repo=brew-$TASK_ID
-        - name: upgrade
-          test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=update --repo=brew-$TASK_ID
-        - name: downgrade
-          test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=downgrade --repo=brew-$TASK_ID
-        - name: remove
-          test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=remove --repo=brew-$TASK_ID
+    - name: install
+      test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=install --repo=brew-$TASK_ID
+      duration: 20m
+    - name: update
+      test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=update --repo=brew-$TASK_ID
+      duration: 20m
+    - name: downgrade
+      test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=downgrade --repo=brew-$TASK_ID
+      duration: 20m
+    - name: remove
+      test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=remove --repo=brew-$TASK_ID
+      duration: 20m
 
 prepare:
     how: shell
