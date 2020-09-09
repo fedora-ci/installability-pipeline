@@ -114,7 +114,7 @@ pipeline {
             // Show XUnit results in Jenkins, if available
             script {
                 if (xunit) {
-                    node('fedora-ci-agent') {
+                    node('pipeline-library') {
                         writeFile file: 'tfxunit.xml', text: "${xunit}"
                         sh script: "tfxunit2junit --docs-url ${pipelineMetadata['docs']} tfxunit.xml > xunit.xml"
                         junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'xunit.xml')
