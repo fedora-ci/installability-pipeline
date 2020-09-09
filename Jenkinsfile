@@ -111,9 +111,9 @@ pipeline {
 
     post {
         always {
-            // Show XUnit results in Jenkins, if possible
+            // Show XUnit results in Jenkins, if available
             script {
-                if (testingFarmResult) {
+                if (xunit) {
                     node('fedora-ci-agent') {
                         writeFile file: 'tfxunit.xml', text: "${xunit}"
                         sh script: "tfxunit2junit --docs-url ${pipelineMetadata['docs']} tfxunit.xml > xunit.xml"
