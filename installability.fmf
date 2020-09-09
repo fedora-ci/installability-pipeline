@@ -10,7 +10,7 @@ discover:
         - name: install
           test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=install --repo=brew-$TASK_ID
         - name: upgrade
-          test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=upgrade --repo=brew-$TASK_ID
+          test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=update --repo=brew-$TASK_ID
         - name: downgrade
           test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=downgrade --repo=brew-$TASK_ID
         - name: remove
