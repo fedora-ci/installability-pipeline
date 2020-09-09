@@ -1,5 +1,5 @@
 summary: TMT/FMF plan for running the installability tests.
-description: Run installability tests.
+description: Runs installability tests in Fedora CI — https://github.com/fedora-ci/installability-pipeline.
 
 provision:
     how: libvirt
