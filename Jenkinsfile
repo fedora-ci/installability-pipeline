@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('fedora-pipeline-library@prototype') _
+@Library('fedora-pipeline-library@candidate') _
 
 import groovy.json.JsonBuilder
 
