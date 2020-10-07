@@ -65,4 +65,4 @@ prepare:
         fi
 
 execute:
-    how: shell
+    how: shell.tmt
