@@ -61,11 +61,6 @@ pipeline {
             steps {
                 sendMessage(type: 'queued', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
                 script {
-                    def artifacts = []
-                    getIdFromArtifactId(artifactId: artifactId, additionalArtifactIds: additionalArtifactIds).split(',').each { taskId ->
-                        artifacts.add([id: "${taskId}", type: "fedora-koji-build"])
-                    }
-
                     def requestPayload = """
                         {
                             "api_key": "${env.TESTING_FARM_API_KEY}",
@@ -85,8 +80,7 @@ pipeline {
                                         "RELEASE_ID": "${getReleaseIdFromBranch()}",
                                         "TASK_ID": "${getIdFromArtifactId(artifactId: artifactId)}",
                                         "ADDITIONAL_TASK_IDS": "${getIdFromArtifactId(additionalArtifactIds: additionalArtifactIds, separator: ' ')}"
-                                    },
-                                    "artifacts": ${new JsonBuilder( artifacts ).toPrettyString()}
+                                    }
                                 }
                             ]
                         }
