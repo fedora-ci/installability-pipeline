@@ -9,16 +9,16 @@ discover:
     tests:
     - name: install
       test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=install --repo=brew-$TASK_ID
-      duration: 60m
+      duration: 90m
     - name: update
       test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=update --repo=brew-$TASK_ID
-      duration: 60m
+      duration: 90m
     - name: downgrade
       test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=downgrade --repo=brew-$TASK_ID
-      duration: 60m
+      duration: 90m
     - name: remove
       test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=remove --repo=brew-$TASK_ID
-      duration: 60m
+      duration: 90m
 
 prepare:
     how: shell
