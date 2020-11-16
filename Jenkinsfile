@@ -28,7 +28,7 @@ pipeline {
     agent { label 'master' }
 
     options {
-        buildDiscarder(logRotator(daysToKeepStr: '180', artifactNumToKeepStr: '100'))
+        buildDiscarder(logRotator(daysToKeepStr: '45', artifactNumToKeepStr: '100'))
         timeout(time: 8, unit: 'HOURS')
     }
 
