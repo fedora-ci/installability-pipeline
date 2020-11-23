@@ -110,6 +110,26 @@ pipeline {
                 }
             }
         }
+
+        stage('Process Test Results (XUnit)') {
+            when {
+                expression { xunit }
+            }
+            agent {
+                kubernetes {
+                    yaml podYAML
+                    defaultContainer 'pipeline-agent'
+                }
+            }
+            steps {
+                script {
+                    // Convert Testing Farm XUnit into JUnit and store the result in Jenkins
+                    writeFile file: 'tfxunit.xml', text: "${xunit}"
+                    sh script: "tfxunit2junit --docs-url ${pipelineMetadata['docs']} tfxunit.xml > xunit.xml"
+                    junit(allowEmptyResults: true, keepLongStdio: true, testResults: 'xunit.xml')
+                }
+            }
+        }
     }
 
     post {
