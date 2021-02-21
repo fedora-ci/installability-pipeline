@@ -2,9 +2,7 @@
 
 This repository contains the definition of the Installability CI pipeline.
 
-This pipeline tries to install, upgrade, downgrade and remove RPM packages and publishes results via [CI Messages](https://pagure.io/fedora-ci/messages).
-
-> ** **Important:** ** Structure of the branches in this repository resembles branches in dist-git, i.e. master branch contains the pipeline definition for Fedora Rawhide, [f32](https://github.com/fedora-ci/installability-pipeline/tree/f32) branch is for Fedora 32, etc.
+This pipeline tries to install, update, downgrade and remove RPM packages and publishes results via [CI Messages](https://pagure.io/fedora-ci/messages).
 
 ## Test definition
 
