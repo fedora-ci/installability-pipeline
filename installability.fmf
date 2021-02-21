@@ -33,7 +33,7 @@ prepare:
         [ -z "$RELEASE_ID" ] && { echo "RELEASE_ID missing in the environment"; exit 1; }
 
         # install mini-tps
-        curl -Lo /etc/yum.repos.d/mini-tps.repo https://copr.fedorainfracloud.org/coprs/msrb/mini-tps/repo/fedora-rawhide/msrb-mini-tps-fedora-rawhide.repo
+        curl --retry 5 --retry-delay 10 --retry-all-errors -Lo /etc/yum.repos.d/mini-tps.repo https://copr.fedorainfracloud.org/coprs/msrb/mini-tps/repo/fedora-rawhide/msrb-mini-tps-fedora-rawhide.repo
         dnf install -y mini-tps
 
         # make sure mini-tps can find Koji
