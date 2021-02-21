@@ -1,12 +1,11 @@
 #!groovy
 
-@Library('fedora-pipeline-library@candidate2') _
+@Library('fedora-pipeline-library@fedora-stable') _
 
-import groovy.json.JsonBuilder
 
 def pipelineMetadata = [
     pipelineName: 'installability',
-    pipelineDescription: 'Test whether RPM packages can be installed, upgraded, downgraded and removed.',
+    pipelineDescription: 'Try to install, upgrade, downgrade and remove RPM packages.',
     testCategory: 'functional',
     testType: 'installability',
     maintainer: 'Fedora CI',
@@ -113,6 +112,7 @@ pipeline {
 
         stage('Process Test Results (XUnit)') {
             when {
+                beforeAgent true
                 expression { xunit }
             }
             agent {
