@@ -8,15 +8,19 @@ discover:
     how: shell
     tests:
     - name: install
+      framework: shell
       test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=install --repo=brew-$TASK_ID
       duration: 90m
     - name: update
+      framework: shell
       test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=update --repo=brew-$TASK_ID
       duration: 90m
     - name: downgrade
+      framework: shell
       test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=downgrade --repo=brew-$TASK_ID
       duration: 90m
     - name: remove
+      framework: shell
       test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --selinux=1 --test=remove --repo=brew-$TASK_ID
       duration: 90m
 
@@ -27,8 +31,6 @@ prepare:
         # sanity checks
         [ -z "$TASK_ID" ] && { echo "TASK_ID missing in the environment"; exit 1; }
         [ -z "$RELEASE_ID" ] && { echo "RELEASE_ID missing in the environment"; exit 1; }
-
-        # FIXME: this shouldn't be here: https://github.com/fedora-ci/installability-pipeline/pull/2
 
         # install mini-tps
         curl -Lo /etc/yum.repos.d/mini-tps.repo https://copr.fedorainfracloud.org/coprs/msrb/mini-tps/repo/fedora-rawhide/msrb-mini-tps-fedora-rawhide.repo
@@ -65,4 +67,4 @@ prepare:
         fi
 
 execute:
-    how: shell.tmt
+    how: tmt
