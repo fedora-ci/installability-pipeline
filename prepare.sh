@@ -3,7 +3,7 @@
 set -e
 # sanity checks
 [ -z "$TASK_ID" ] && { echo "TASK_ID missing in the environment"; exit 1; }
-[ -z "$RELEASE_ID" ] && { echo "RELEASE_ID missing in the environment"; exit 1; }
+[ -z "$PROFILE_NAME" ] && { echo "PROFILE_NAME missing in the environment"; exit 1; }
 
 # install mini-tps
 curl --retry 5 --retry-delay 10 --retry-all-errors -Lo /etc/yum.repos.d/mini-tps.repo https://copr.fedorainfracloud.org/coprs/msrb/mini-tps/repo/fedora-rawhide/msrb-mini-tps-fedora-rawhide.repo
@@ -29,7 +29,7 @@ chmod +x /usr/local/libexec/mini-tps/installability_runner.sh
 . /var/tmp/mini-tps/env
 
 # prepare the system for testing
-mtps-prepare-system -p fedora-${RELEASE_ID:1} --fixrepo --enablebuildroot
+mtps-prepare-system -p ${PROFILE_NAME} --fixrepo --enablebuildroot
 mtps-get-task --recursive --task=$TASK_ID --srpm
 mtps-get-task --createrepo --installrepofile --recursive --task=$TASK_ID --download=/var/lib/brew-repo
 

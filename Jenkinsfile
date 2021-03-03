@@ -20,6 +20,7 @@ def additionalArtifactIds
 def testingFarmRequestId
 def testingFarmResult
 def xunit
+def config
 
 def podYAML = """
 spec:
@@ -43,6 +44,7 @@ pipeline {
     parameters {
         string(name: 'ARTIFACT_ID', defaultValue: '', trim: true, description: '"koji-build:&lt;taskId&gt;" for Koji builds; Example: koji-build:46436038')
         string(name: 'ADDITIONAL_ARTIFACT_IDS', defaultValue: '', trim: true, description: 'A comma-separated list of additional ARTIFACT_IDs')
+        string(name: 'TEST_PROFILE', defaultValue: 'f35', trim: true, description: 'A name of the test profile to use; Example: f35')
     }
 
     environment {
@@ -55,7 +57,9 @@ pipeline {
                 script {
                     artifactId = params.ARTIFACT_ID
                     additionalArtifactIds = params.ADDITIONAL_ARTIFACT_IDS
-                    setBuildNameFromArtifactId(artifactId: artifactId)
+                    setBuildNameFromArtifactId(artifactId: artifactId, profile: params.TEST_PROFILE)
+
+                    config = loadConfig(profile: params.TEST_PROFILE)
 
                     if (!artifactId) {
                         abort('ARTIFACT_ID is missing')
@@ -82,10 +86,10 @@ pipeline {
                                 {
                                     "arch": "x86_64",
                                     "os": {
-                                        "compose": "Fedora-Rawhide"
+                                        "compose": "${config.compose}"
                                     },
                                     "variables": {
-                                        "RELEASE_ID": "${getReleaseIdFromBranch()}",
+                                        "PROFILE_NAME": "${config.profile_name}",
                                         "TASK_ID": "${getIdFromArtifactId(artifactId: artifactId)}",
                                         "ADDITIONAL_TASK_IDS": "${getIdFromArtifactId(additionalArtifactIds: additionalArtifactIds, separator: ' ')}"
                                     }
