@@ -12,7 +12,7 @@ The actual definition lives in the [installability.fmf](./installability.fmf) fi
 
 ## Test execution
 
-The pipeline delegates the test execution to the Testing Farm (TODO: link once available). The pipeline only collects, archive and report results.
+The pipeline delegates the test execution to the [Testing Farm](https://api.dev.testing-farm.io). The pipeline only collects, archive and report results.
 
 However, it is possible to run the installability test locally. To do that, clone this repository and run following command:
 
