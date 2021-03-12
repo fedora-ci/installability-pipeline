@@ -6,23 +6,23 @@
     },
     "profiles": {
         "f35": {
-            "profile_name": "f35",
+            "profile_name": "fedora-35",
             "compose": "Fedora-Rawhide"
         },
         "f36": {
-            "profile_name": "f36",
+            "profile_name": "fedora-36",
             "compose": "Fedora-Rawhide"
         },
         "f37": {
-            "profile_name": "f37",
+            "profile_name": "fedora-37",
             "compose": "Fedora-Rawhide"
         },
         "f38": {
-            "profile_name": "f38",
+            "profile_name": "fedora-38",
             "compose": "Fedora-Rawhide"
         },
         "f39": {
-            "profile_name": "f39",
+            "profile_name": "fedora-39",
             "compose": "Fedora-Rawhide"
         }
     }
