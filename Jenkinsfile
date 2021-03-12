@@ -21,6 +21,8 @@ def testingFarmRequestId
 def testingFarmResult
 def xunit
 def config
+def ignoreList
+def artifactName
 
 def podYAML = """
 spec:
@@ -57,9 +59,15 @@ pipeline {
                 script {
                     artifactId = params.ARTIFACT_ID
                     additionalArtifactIds = params.ADDITIONAL_ARTIFACT_IDS
-                    setBuildNameFromArtifactId(artifactId: artifactId, profile: params.TEST_PROFILE)
+                    artifactName = setBuildNameFromArtifactId(artifactId: artifactId, profile: params.TEST_PROFILE)
 
                     config = loadConfig(profile: params.TEST_PROFILE)
+
+                    // check if the package is on the ignore list
+                    ignoreList = loadConfig().get('ignore_list', [])
+                    if (artifactName in ignoreList) {
+                        abort("${artifactName} is on the pipeline ignore list, skipping...")
+                    }
 
                     if (!artifactId) {
                         abort('ARTIFACT_ID is missing')
@@ -148,6 +156,13 @@ pipeline {
         }
         unstable {
             sendMessage(type: 'complete', artifactId: artifactId, pipelineMetadata: pipelineMetadata, xunit: xunit, dryRun: isPullRequest())
+        }
+        aborted {
+            script {
+                if (artifactId) {
+                    sendMessage(type: 'complete', artifactId: artifactId, pipelineMetadata: pipelineMetadata, isSkipped: true, note: "${env.ABORT_MESSAGE}", dryRun: isPullRequest())
+                }
+            }
         }
     }
 }
