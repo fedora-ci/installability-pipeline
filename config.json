@@ -1,9 +1,7 @@
 {
-    "config": {
-        "whitelist": [
-            "selinux-policy"
-        ]
-    },
+    "ignore_list": [
+        "selinux-policy"
+    ],
     "profiles": {
         "f35": {
             "profile_name": "fedora-35",
