@@ -23,6 +23,7 @@ def xunit
 def config
 def ignoreList
 def artifactName
+def hook
 
 def podYAML = """
 spec:
@@ -36,11 +37,12 @@ spec:
 
 pipeline {
 
-    agent { label 'installability' }
+    agent none
 
     options {
         buildDiscarder(logRotator(daysToKeepStr: '45', artifactNumToKeepStr: '100'))
         timeout(time: 20, unit: 'HOURS')
+        skipDefaultCheckout(true)
     }
 
     parameters {
@@ -55,12 +57,16 @@ pipeline {
 
     stages {
         stage('Prepare') {
+            agent {
+                label pipelineMetadata.pipelineName
+            }
             steps {
                 script {
                     artifactId = params.ARTIFACT_ID
                     additionalArtifactIds = params.ADDITIONAL_ARTIFACT_IDS
                     artifactName = setBuildNameFromArtifactId(artifactId: artifactId, profile: params.TEST_PROFILE)
 
+                    checkout scm
                     config = loadConfig(profile: params.TEST_PROFILE)
 
                     // check if the package is on the ignore list
@@ -78,35 +84,36 @@ pipeline {
         }
 
         stage('Schedule Test') {
+            agent {
+                label pipelineMetadata.pipelineName
+            }
             steps {
                 sendMessage(type: 'queued', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
                 script {
-                    def requestPayload = """
-                        {
-                            "api_key": "${env.TESTING_FARM_API_KEY}",
-                            "test": {
-                                "fmf": {
-                                    "url": "${getGitUrl()}",
-                                    "ref": "${getGitRef()}"
-                                }
-                            },
-                            "environments": [
-                                {
-                                    "arch": "x86_64",
-                                    "os": {
-                                        "compose": "${config.compose}"
-                                    },
-                                    "variables": {
-                                        "PROFILE_NAME": "${config.profile_name}",
-                                        "TASK_ID": "${getIdFromArtifactId(artifactId: artifactId)}",
-                                        "ADDITIONAL_TASK_IDS": "${getIdFromArtifactId(additionalArtifactIds: additionalArtifactIds, separator: ' ')}"
-                                    }
-                                }
+                    def requestPayload = [
+                        api_key: "${env.TESTING_FARM_API_KEY}",
+                        test: [
+                            fmf: [
+                                url: "${getGitUrl()}",
+                                ref: "${getGitRef()}"
                             ]
-                        }
-                    """
-                    echo "${requestPayload}"
-                    def response = submitTestingFarmRequest(payload: requestPayload)
+                        ],
+                        environments: [
+                            [
+                                arch: "x86_64",
+                                os: [ compose: "${config.compose}" ],
+                                variables: [
+                                    PROFILE_NAME: "${config.profile_name}",
+                                    TASK_ID: "${getIdFromArtifactId(artifactId: artifactId)}",
+                                    ADDITIONAL_TASK_IDS: "${getIdFromArtifactId(additionalArtifactIds: additionalArtifactIds, separator: ' ')}"
+                                ]
+                            ]
+                        ]
+                    ]
+                    hook = registerWebhook()
+                    requestPayload['notification'] = ['webhook': [url: hook.getURL()]]
+
+                    def response = submitTestingFarmRequest(payloadMap: requestPayload)
                     testingFarmRequestId = response['id']
                 }
                 sendMessage(type: 'running', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
@@ -114,10 +121,12 @@ pipeline {
         }
 
         stage('Wait for Test Results') {
+            agent none
             steps {
                 script {
-                    testingFarmResult = waitForTestingFarmResults(requestId: testingFarmRequestId, timeout: 60)
-                    xunit = testingFarmResult.get('result', [:])?.get('xunit', '') ?: ''
+                    def response = waitForTestingFarm(requestId: testingFarmRequestId, hook: hook)
+                    testingFarmResult = response.apiResponse
+                    xunit = response.xunit
                 }
             }
         }
