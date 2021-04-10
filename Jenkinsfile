@@ -23,6 +23,7 @@ def xunit
 def config
 def ignoreList
 def artifactName
+def pipelineRepoUrlAndRef
 def hook
 
 def podYAML = """
@@ -68,6 +69,7 @@ pipeline {
 
                     checkout scm
                     config = loadConfig(profile: params.TEST_PROFILE)
+                    pipelineRepoUrlAndRef = [url: "${getGitUrl()}", ref: "${getGitRef()}"]
 
                     // check if the package is on the ignore list
                     ignoreList = loadConfig().get('ignore_list', [])
@@ -93,10 +95,7 @@ pipeline {
                     def requestPayload = [
                         api_key: "${env.TESTING_FARM_API_KEY}",
                         test: [
-                            fmf: [
-                                url: "${getGitUrl()}",
-                                ref: "${getGitRef()}"
-                            ]
+                            fmf: pipelineRepoUrlAndRef
                         ],
                         environments: [
                             [
