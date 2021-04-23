@@ -167,7 +167,7 @@ pipeline {
         }
         aborted {
             script {
-                if (artifactId) {
+                if (artifactId && !testingFarmRequestId) {
                     sendMessage(type: 'complete', artifactId: artifactId, pipelineMetadata: pipelineMetadata, isSkipped: true, note: "${env.ABORT_MESSAGE}", dryRun: isPullRequest())
                 }
             }
