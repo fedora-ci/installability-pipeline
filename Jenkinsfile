@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('fedora-pipeline-library@fedora-stable') _
+@Library('fedora-pipeline-library@tf-eval-error-handling') _
 
 
 def pipelineMetadata = [
