@@ -1,7 +1,11 @@
 #!groovy
 
-@Library('fedora-pipeline-library@fedora-stable') _
-
+retry (10) {
+    // load pipeline configuration into the environment
+    httpRequest("${FEDORA_CI_PIPELINES_CONFIG_URL}/environment").content.split('\n').each { l ->
+        l = l.trim(); if (l && !l.startsWith('#')) { env["${l.split('=')[0].trim()}"] = "${l.split('=')[1].trim()}" }
+    }
+}
 
 def pipelineMetadata = [
     pipelineName: 'installability',
@@ -40,16 +44,20 @@ pipeline {
 
     agent none
 
+    libraries {
+        lib("fedora-pipeline-library@${env.PIPELINE_LIBRARY_VERSION}")
+    }
+
     options {
-        buildDiscarder(logRotator(daysToKeepStr: '45', artifactNumToKeepStr: '100'))
-        timeout(time: 20, unit: 'HOURS')
+        buildDiscarder(logRotator(daysToKeepStr: env.DEFAULT_DAYS_TO_KEEP_LOGS, artifactNumToKeepStr: env.DEFAULT_ARTIFACTS_TO_KEEP))
+        timeout(time: env.DEFAULT_PIPELINE_TIMEOUT_MINUTES, unit: 'MINUTES')
         skipDefaultCheckout(true)
     }
 
     parameters {
         string(name: 'ARTIFACT_ID', defaultValue: '', trim: true, description: '"koji-build:&lt;taskId&gt;" for Koji builds; Example: koji-build:46436038')
         string(name: 'ADDITIONAL_ARTIFACT_IDS', defaultValue: '', trim: true, description: 'A comma-separated list of additional ARTIFACT_IDs')
-        string(name: 'TEST_PROFILE', defaultValue: 'f35', trim: true, description: 'A name of the test profile to use; Example: f35')
+        string(name: 'TEST_PROFILE', defaultValue: env.FEDORA_CI_RAWHIDE_RELEASE_ID, trim: true, description: "A name of the test profile to use; Example: ${env.FEDORA_CI_RAWHIDE_RELEASE_ID}")
     }
 
     environment {
