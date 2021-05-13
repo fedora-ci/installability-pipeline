@@ -178,6 +178,9 @@ pipeline {
                 if (artifactId && !testingFarmRequestId) {
                     sendMessage(type: 'complete', artifactId: artifactId, pipelineMetadata: pipelineMetadata, isSkipped: true, note: "${env.ABORT_MESSAGE}", dryRun: isPullRequest())
                 }
+                if (isTimeoutAborted(timeout: env.DEFAULT_PIPELINE_TIMEOUT_MINUTES, unit: 'MINUTES')) {
+                    sendMessage(type: 'error', artifactId: artifactId, additionalArtifactIds: additionalArtifactIds, errorReason: 'Timeout has been exceeded, pipeline aborted.', pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
+                }
             }
         }
     }
