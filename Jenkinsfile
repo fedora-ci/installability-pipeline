@@ -98,7 +98,6 @@ pipeline {
                 label pipelineMetadata.pipelineName
             }
             steps {
-                sendMessage(type: 'queued', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
                 script {
                     def requestPayload = [
                         api_key: "${env.TESTING_FARM_API_KEY}",
