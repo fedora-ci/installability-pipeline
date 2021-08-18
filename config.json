@@ -5,7 +5,7 @@
     "profiles": {
         "f35": {
             "profile_name": "fedora-35",
-            "compose": "Fedora-Rawhide"
+            "compose": "Fedora-35"
         },
         "f36": {
             "profile_name": "fedora-36",
