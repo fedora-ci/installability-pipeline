@@ -13,7 +13,7 @@ def pipelineMetadata = [
     testCategory: 'functional',
     testType: 'installability',
     maintainer: 'Fedora CI',
-    docs: 'https://github.com/fedora-ci/installability-pipeline',
+    docs: 'https://github.com/fedora-ci/mini-tps',
     contact: [
         irc: '#fedora-ci',
         email: 'ci@lists.fedoraproject.org'
