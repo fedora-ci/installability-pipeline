@@ -6,7 +6,7 @@ set -e
 [ -z "$PROFILE_NAME" ] && { echo "PROFILE_NAME missing in the environment"; exit 1; }
 
 # install mini-tps
-curl --retry 5 --retry-delay 10 --retry-all-errors -Lo /etc/yum.repos.d/mini-tps.repo https://copr.fedorainfracloud.org/coprs/msrb/mini-tps/repo/fedora-rawhide/msrb-mini-tps-fedora-rawhide.repo
+curl --retry 5 --retry-delay 10 --retry-all-errors -Lo /etc/yum.repos.d/mini-tps.repo https://copr.fedorainfracloud.org/coprs/g/osci/mini-tps/repo/fedora-rawhide/group_osci-mini-tps-fedora-rawhide.repo
 dnf install -y mini-tps
 
 # make sure mini-tps can find Koji
