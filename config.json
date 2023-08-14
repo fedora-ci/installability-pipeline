@@ -21,7 +21,7 @@
         },
         "f39": {
             "profile_name": "fedora-39",
-            "compose": "Fedora-Rawhide"
+            "compose": "Fedora-39"
         },
         "f40": {
             "profile_name": "fedora-40",
