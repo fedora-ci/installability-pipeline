@@ -34,6 +34,14 @@
         "f42": {
             "profile_name": "fedora-42",
             "compose": "Fedora-Rawhide"
+        },
+        "epel8": {
+            "profile_name": "centos-stream-8",
+            "compose": "CentOS-Stream-8"
+        },
+        "epel9": {
+            "profile_name": "centos-stream-9",
+            "compose": "CentOS-Stream-9"
         }
     }
 }
