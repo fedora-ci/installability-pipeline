@@ -18,12 +18,7 @@ export BREWHUB=https://koji.fedoraproject.org/kojihub
 export BREWROOT=https://kojipkgs.fedoraproject.org
 EOF
 
-cat << EOF > /usr/local/libexec/mini-tps/installability_runner.sh
-#!/bin/bash
-set -e
-. /var/tmp/mini-tps/env
-mtps-run-tests \$@
-EOF
+cp installability_runner.sh /usr/local/libexec/mini-tps/installability_runner.sh
 chmod +x /usr/local/libexec/mini-tps/installability_runner.sh
 
 . /var/tmp/mini-tps/env
