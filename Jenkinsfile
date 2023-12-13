@@ -80,7 +80,7 @@ pipeline {
                         abort('ARTIFACT_ID is missing')
                     }
                 }
-                // sendMessage(type: 'queued', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
+                sendMessage(type: 'queued', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
             }
         }
 
@@ -113,7 +113,7 @@ pipeline {
                     def response = submitTestingFarmRequest(payloadMap: requestPayload)
                     testingFarmRequestId = response['id']
                 }
-                // sendMessage(type: 'running', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
+                sendMessage(type: 'running', artifactId: artifactId, pipelineMetadata: pipelineMetadata, dryRun: isPullRequest())
             }
         }
 
