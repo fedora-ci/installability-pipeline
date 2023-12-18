@@ -11,22 +11,10 @@ discover:
       framework: shell
       test: bash prepare.sh
       duration: 30m
-    - name: install
+    - name: installability
       framework: shell
-      test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --skiplangpack --selinux=1 --test=install --repo=brew-$TASK_ID
-      duration: 240m
-    - name: update
-      framework: shell
-      test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --skiplangpack --selinux=1 --test=update --repo=brew-$TASK_ID
-      duration: 240m
-    - name: downgrade
-      framework: shell
-      test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --skiplangpack --selinux=1 --test=downgrade --repo=brew-$TASK_ID
-      duration: 240m
-    - name: remove
-      framework: shell
-      test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --skiplangpack --selinux=1 --test=remove --repo=brew-$TASK_ID
-      duration: 240m
+      test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --skiplangpack --selinux=1 --repo=brew-$TASK_ID
+      duration: 960m
 
 execute:
     how: tmt
