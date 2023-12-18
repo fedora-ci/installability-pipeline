@@ -32,8 +32,8 @@ if [ -n "$TMT_TEST_DATA" ]; then
 - name: /installability
   result: $tmtresult
   log:
-    - viewer.html
     - ../output.txt
+    - viewer.html
     - result.json
 FOE
     echo "running in TMT, wrote $TMT_TEST_DATA/results.yaml"
