@@ -25,7 +25,6 @@ chmod +x /usr/local/libexec/mini-tps/installability_runner.sh
 
 # prepare the system for testing
 mtps-prepare-system -p ${PROFILE_NAME} --fixrepo --enablebuildroot
-mtps-get-task --recursive --task=$TASK_ID --srpm
 mtps-get-task --createrepo --installrepofile --recursive --task=$TASK_ID --download=/var/lib/brew-repo
 
 if [ -n "$ADDITIONAL_TASK_IDS" ]; then
