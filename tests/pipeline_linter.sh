@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 if [ $# -ne 1 ]; then
     echo $0: "USAGE: ./pipeline_linter.sh jenkins_filename"
