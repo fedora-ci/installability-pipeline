@@ -8,7 +8,7 @@ This pipeline tries to install, update, downgrade and remove RPM packages and pu
 
 The generic installability test is described in a [Flexible Metadata Format](https://pagure.io/fedora-ci/metadata).
 
-The actual definition lives in the [installability.fmf](./installability.fmf) file.
+The actual definition lives in the [installability.fmf](installability.fmf) file.
 
 ## Test execution
 

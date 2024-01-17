@@ -13,7 +13,7 @@ get_result () {
 highrc=0
 . /var/tmp/mini-tps/env
 for method in "install" "update" "downgrade" "remove"; do
-    mtps-run-tests $@ --test="$method";
+    mtps-run-tests "$@" --test="$method";
     thisrc=$?
     thisres="$(get_result $thisrc)"
     echo "$method result: $thisres (status code: $thisrc)"
