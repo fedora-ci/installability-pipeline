@@ -24,11 +24,11 @@ chmod +x /usr/local/libexec/mini-tps/installability_runner.sh
 . /var/tmp/mini-tps/env
 
 # prepare the system for testing
-mtps-prepare-system -p ${PROFILE_NAME} --fixrepo --enablebuildroot
-mtps-get-task --createrepo --installrepofile --recursive --task=$TASK_ID --download=/var/lib/brew-repo
+mtps-prepare-system -p "${PROFILE_NAME}" --fixrepo --enablebuildroot
+mtps-get-task --createrepo --installrepofile --recursive --task="$TASK_ID" --download=/var/lib/brew-repo
 
 if [ -n "$ADDITIONAL_TASK_IDS" ]; then
     for additional_task_id in ${ADDITIONAL_TASK_IDS}; do
-        mtps-get-task --createrepo --installrepofile --recursive --task=$additional_task_id --download='/var/lib/repo-for-side-tag' --repofilename=side-tag
+        mtps-get-task --createrepo --installrepofile --recursive --task="$additional_task_id" --download='/var/lib/repo-for-side-tag' --repofilename=side-tag
     done
 fi
