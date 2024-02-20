@@ -10,21 +10,35 @@ get_result () {
     echo "$result"
 }
 
-highrc=0
+TESTRUN_ID="$(date +%H%M%S)"
+mkdir -p "${LOGS_DIR:=mtps-logs}"
+
 . /var/tmp/mini-tps/env
-for method in "install" "update" "downgrade" "remove"; do
-    mtps-run-tests "$@" --test="$method";
-    thisrc=$?
-    thisres="$(get_result $thisrc)"
-    echo "$method result: $thisres (status code: $thisrc)"
-    if [ "$thisrc" -gt "$highrc" ]; then
-        highrc="$thisrc"
-    fi
-done
-tmtresult="$(get_result $highrc)"
+
+if [[ -f SKIP_TEST ]]; then
+  # The SKIP_TEST file contains a reason why the prepare.sh ended unexpectedly.
+  # Copy it to a log file which can be parsed by generate-result-json
+  # (to show the reason in viewer.html)
+  cat SKIP_TEST
+  cp SKIP_TEST "${LOGS_DIR}/SKIP-${TESTRUN_ID}-install-package.log"
+  tmtresult="skip"
+else
+  highrc=0
+  for method in "install" "update" "downgrade" "remove"; do
+      mtps-run-tests "$@" --test="$method";
+      thisrc=$?
+      thisres="$(get_result $thisrc)"
+      echo "$method result: $thisres (status code: $thisrc)"
+      if [ "$thisrc" -gt "$highrc" ]; then
+          highrc="$thisrc"
+      fi
+  done
+  tmtresult="$(get_result $highrc)"
+fi
+
 if [ -n "$TMT_TEST_DATA" ]; then
     # generate the result JSON
-    /usr/libexec/mini-tps/viewer/generate-result-json ./mtps-logs > "$TMT_TEST_DATA/result.json"
+    /usr/libexec/mini-tps/viewer/generate-result-json "$LOGS_DIR" > "$TMT_TEST_DATA/result.json"
     # copy the viewer HTML
     cp /usr/share/mini-tps/viewer/viewer.html "$TMT_TEST_DATA/viewer.html"
 
