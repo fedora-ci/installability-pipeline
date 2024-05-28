@@ -10,7 +10,7 @@ set -e
 [ -z "$PROFILE_NAME" ] && { echo "PROFILE_NAME missing in the environment"; exit 1; }
 
 # install mini-tps
-dnf -y copr enable @osci/mini-tps
+dnf -y copr enable packit/fedora-ci-mini-tps-59
 dnf -y install mini-tps
 
 # make sure mini-tps can find Koji
