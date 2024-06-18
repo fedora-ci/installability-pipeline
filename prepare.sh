@@ -12,6 +12,7 @@ set -e
 # install mini-tps
 dnf -y copr enable @osci/mini-tps
 dnf -y install mini-tps
+dnf -y copr disable @osci/mini-tps
 
 # make sure mini-tps can find Koji
 # TODO: can mini-tps RPM package provide this configuration automatically?
