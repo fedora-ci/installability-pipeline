@@ -5,6 +5,7 @@ RET_NO_RPMS_IN_REPOS=8
 RET_EMPTY_REPOQUERY=11
 
 set -e
+set -x
 # sanity checks
 [ -z "$TASK_ID" ] && { echo "TASK_ID missing in the environment"; exit 1; }
 [ -z "$PROFILE_NAME" ] && { echo "PROFILE_NAME missing in the environment"; exit 1; }
