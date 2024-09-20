@@ -40,6 +40,7 @@ if [[ "$PROFILE_NAME" == centos-stream-* ]]; then
     echo "Enabling CRB and EPEL..."
     yum config-manager --enable crb
     yum -y install epel-release
+    yum config-manager --enable epel
 fi
 
 mtps-get-task --createrepo --installrepofile --recursive --task="$TASK_ID" --download=/var/lib/brew-repo
