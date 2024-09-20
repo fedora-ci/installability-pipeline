@@ -39,7 +39,7 @@ if [[ "$PROFILE_NAME" == centos-stream-* ]]; then
     # enable CRB and EPEL
     echo "Enabling CRB and EPEL..."
     yum config-manager --enable crb
-    yum -y install epel-release
+    rpm -q epel-release && yum -y reinstall epel-release || yum -y update epel-release
     yum config-manager --enable epel
 fi
 
