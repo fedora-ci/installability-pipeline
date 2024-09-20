@@ -35,7 +35,7 @@ set +e
 # prepare the system for testing
 mtps-prepare-system -p "${PROFILE_NAME}" --fixrepo --enablebuildroot
 
-if [[ "$PROFILE_NAME" == epel* ]]; then
+if [[ "$PROFILE_NAME" == centos-stream-* ]]; then
     # enable CRB and EPEL
     echo "Enabling CRB and EPEL..."
     yum config-manager --enable crb
