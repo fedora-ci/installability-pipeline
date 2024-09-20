@@ -33,6 +33,14 @@ set +e
 
 # prepare the system for testing
 mtps-prepare-system -p "${PROFILE_NAME}" --fixrepo --enablebuildroot
+
+if [[ "$PROFILE_NAME" == epel* ]]; then
+    # enable CRB and EPEL
+    echo "Enabling CRB and EPEL..."
+    yum config-manager --enable crb
+    yum -y install epel-release
+fi
+
 mtps-get-task --createrepo --installrepofile --recursive --task="$TASK_ID" --download=/var/lib/brew-repo
 rc="$?"
 if [[ "$rc" -ne 0 ]]; then
