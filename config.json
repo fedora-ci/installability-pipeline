@@ -40,6 +40,10 @@
     "epel9": {
       "profile_name": "centos-stream-9",
       "compose": "CentOS-Stream-9"
+    },
+    "epel10": {
+      "profile_name": "centos-stream-10",
+      "compose": "CentOS-Stream-10"
     }
   }
 }
