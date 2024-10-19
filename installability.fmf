@@ -11,6 +11,10 @@ discover:
       framework: shell
       test: bash prepare.sh
       duration: 30m
+    - name: enable_dnf5
+      framework: shell
+      test: bash enable_dnf5.sh
+      duration: 30m
     - name: installability
       framework: shell
       test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --skiplangpack --selinux=1 --repo=brew-$TASK_ID
