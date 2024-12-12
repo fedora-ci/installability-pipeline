@@ -48,3 +48,13 @@ if [ -n "$ADDITIONAL_TASK_IDS" ]; then
         mtps-get-task --createrepo --installrepofile --recursive --task="$additional_task_id" --download='/var/lib/repo-for-side-tag' --repofilename=side-tag
     done
 fi
+
+if [[ $PROFILE_NAME == "centos-stream-"* ]]; then
+    CENTOS_STREAM_RELEASE=$(sed 's/centos-stream-//' <<< $PROFILE_NAME)
+    EPEL_RELEASE_PACKAGE="https://dl.fedoraproject.org/pub/epel/epel-release-latest-$CENTOS_STREAM_RELEASE.noarch.rpm"
+    ACTION="install"
+    if [ $(rpm -q epel-release) ]; then
+        ACTION="reinstall"
+    fi
+    dnf -y $ACTION $EPEL_RELEASE_PACKAGE
+fi
