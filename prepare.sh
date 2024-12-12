@@ -48,3 +48,15 @@ if [ -n "$ADDITIONAL_TASK_IDS" ]; then
         mtps-get-task --createrepo --installrepofile --recursive --task="$additional_task_id" --download='/var/lib/repo-for-side-tag' --repofilename=side-tag
     done
 fi
+
+if [[ "$PROFILE_NAME" == centos-stream-* ]]; then
+    # enable CRB and EPEL
+    echo "Enabling CRB and EPEL..."
+
+    CENTOS_STREAM_RELEASE=$(sed 's/centos-stream-//' <<< "$PROFILE_NAME")
+    EPEL_RELEASE_PACKAGE_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-$CENTOS_STREAM_RELEASE.noarch.rpm"
+    rpm -q epel-release && yum -y reinstall "$EPEL_RELEASE_PACKAGE_URL" || yum -y install "$EPEL_RELEASE_PACKAGE_URL"
+
+    yum config-manager --enable crb
+    yum config-manager --enable epel
+fi
