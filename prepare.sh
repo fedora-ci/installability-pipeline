@@ -10,9 +10,9 @@ set -e
 [ -z "$PROFILE_NAME" ] && { echo "PROFILE_NAME missing in the environment"; exit 1; }
 
 # install mini-tps
-dnf -y copr enable @osci/mini-tps
+dnf -y copr enable packit/fedora-ci-mini-tps-72
 dnf -y install mini-tps
-dnf -y copr disable @osci/mini-tps
+dnf -y copr disable packit/fedora-ci-mini-tps-72
 
 # make sure mini-tps can find Koji
 # TODO: can mini-tps RPM package provide this configuration automatically?
