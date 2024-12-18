@@ -7,7 +7,7 @@ provision:
 discover:
     how: shell
     tests:
-    - name: prepare
+    - name: _prepare
       framework: shell
       test: bash prepare.sh
       duration: 30m
