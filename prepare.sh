@@ -14,6 +14,12 @@ dnf -y copr enable @osci/mini-tps
 dnf -y install mini-tps
 dnf -y copr disable @osci/mini-tps
 
+# Use nosync to speed up dnf
+if grep -q fedora <<< "${PROFILE_NAME}"; then
+    dnf -y install nosync
+    export LD_PRELOAD=/usr/lib64/nosync/nosync.so
+fi
+
 # make sure mini-tps can find Koji
 # TODO: can mini-tps RPM package provide this configuration automatically?
 mkdir -p /var/tmp/mini-tps/ /usr/local/libexec/mini-tps/

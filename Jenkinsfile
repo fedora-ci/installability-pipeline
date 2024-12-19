@@ -99,6 +99,11 @@ pipeline {
                             [
                                 arch: "x86_64",
                                 os: [ compose: "${config.compose}" ],
+                                tmt: [
+                                    context: [
+                                        profile: "${config.profile_name}"
+                                    ]
+                                ],
                                 variables: [
                                     PROFILE_NAME: "${config.profile_name}",
                                     TASK_ID: "${getIdFromArtifactId(artifactId: artifactId)}",

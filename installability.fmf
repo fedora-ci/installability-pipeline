@@ -4,6 +4,13 @@ description: Runs installability tests in Fedora CI — https://github.com/fedor
 provision:
     how: virtual
 
+adjust:
+  - when: profile == fedora
+    prepare+:
+      - script: dnf -y install nosync
+    environment+:
+      LD_PRELOAD: /usr/lib64/nosync/nosync.so
+
 discover:
     how: shell
     tests:
