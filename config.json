@@ -31,7 +31,7 @@
     },
     "f42": {
       "profile_name": "fedora-42",
-      "compose": "Fedora-Rawhide"
+      "compose": "Fedora-42"
     },
     "f43": {
       "profile_name": "fedora-43",
