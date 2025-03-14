@@ -11,7 +11,8 @@ get_result () {
 }
 
 TESTRUN_ID="$(date +%H%M%S)"
-mkdir -p "${LOGS_DIR:=mtps-logs}"
+LOGS_DIR=${LOGS_DIR:-${TMT_TEST_DATA:+${TMT_TEST_DATA}/}mtps-logs}
+mkdir -p "${LOGS_DIR}"
 
 if [[ -f ${TMT_PLAN_DATA:+${TMT_PLAN_DATA}/}SKIP_TEST ]]; then
   # The SKIP_TEST file contains a reason why the prepare.sh ended unexpectedly.
