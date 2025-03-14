@@ -14,10 +14,20 @@ The actual definition lives in the [installability.fmf](installability.fmf) file
 
 The pipeline delegates the test execution to the [Testing Farm](https://api.dev.testing-farm.io). The pipeline only collects, archive and report results.
 
-However, it is possible to run the installability test locally. To do that, clone this repository and run following command:
+However, it is possible to run the installability test locally. To do that, clone this repository and run one of the following commands:
 
 ```shell
-tmt run -ae TASK_ID=43617203 -e RELEASE_ID=Fedora-32 -d provision --how virtual.testcloud --image fedora plan --name /installability
+$ tmt run -a \
+  -e TASK_ID=43617203 \
+  -e PROFILE_NAME=fedora-43 \
+  provision --how virtual --image fedora
+(running in a virtual environment)
+$ tmt run -a \
+  -e TASK_ID=43617203 \
+  -e PROFILE_NAME=fedora-43 \
+  provision --how container --image fedora:rawhide
+(running in a container environment)
 ```
 
-The command above will run the installability test on a Koji build with the [task Id "43617203"](https://koji.fedoraproject.org/koji/taskinfo?taskID=43617203) (f32-backgrounds-32.1.3-1.fc32) and it tests it in the context of the latest Fedora.
+Where `TASK_ID` is the koji build you want to test, and `PROFILE_NAME` is the environment which must match
+the provision image used.

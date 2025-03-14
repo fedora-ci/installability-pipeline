@@ -7,6 +7,7 @@ RET_NO_RPMS_IN_BREW=7
 RET_NO_RPMS_IN_REPOS=8
 RET_EMPTY_REPOQUERY=11
 
+[ -z "$TMT_VERSION" ] && { echo "Please run using tmt run. See README.md."; exit 1; }
 [ -z "$TASK_ID" ] && { echo "TASK_ID missing in the environment"; exit 1; }
 [ -z "$PROFILE_NAME" ] && { echo "PROFILE_NAME missing in the environment"; exit 1; }
 
@@ -16,7 +17,7 @@ mtps-get-task --createrepo --installrepofile --recursive --task="$TASK_ID" --dow
 rc="$?"
 if [[ "$rc" -ne 0 ]]; then
     if [[ "$rc" -eq $RET_NO_RPMS_IN_BREW || "$rc" -eq $RET_NO_RPMS_IN_REPOS || "$rc" -eq $RET_EMPTY_REPOQUERY ]]; then
-        echo "Skipped. See 'download build' (or /prepare) logs for info." > ${TMT_PLAN_DATA:+${TMT_PLAN_DATA}/}SKIP_TEST
+        echo "Skipped. See 'download build' (or /prepare) logs for info." > ${TMT_PLAN_DATA}/SKIP_TEST
     else  # unknown error
         exit "$rc"
     fi
