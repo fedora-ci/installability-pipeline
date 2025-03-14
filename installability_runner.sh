@@ -13,12 +13,12 @@ get_result () {
 TESTRUN_ID="$(date +%H%M%S)"
 mkdir -p "${LOGS_DIR:=mtps-logs}"
 
-if [[ -f SKIP_TEST ]]; then
+if [[ -f ${TMT_PLAN_DATA:+${TMT_PLAN_DATA}/}SKIP_TEST ]]; then
   # The SKIP_TEST file contains a reason why the prepare.sh ended unexpectedly.
   # Copy it to a log file which can be parsed by generate-result-json
   # (to show the reason in viewer.html)
-  cat SKIP_TEST
-  cp SKIP_TEST "${LOGS_DIR}/SKIP-${TESTRUN_ID}-install-package.log"
+  cat ${TMT_PLAN_DATA:+${TMT_PLAN_DATA}/}SKIP_TEST
+  cp ${TMT_PLAN_DATA:+${TMT_PLAN_DATA}/}SKIP_TEST "${LOGS_DIR}/SKIP-${TESTRUN_ID}-install-package.log"
   tmtresult="skip"
 else
   highrc=0

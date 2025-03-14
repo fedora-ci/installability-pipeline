@@ -16,7 +16,7 @@ mtps-get-task --createrepo --installrepofile --recursive --task="$TASK_ID" --dow
 rc="$?"
 if [[ "$rc" -ne 0 ]]; then
     if [[ "$rc" -eq $RET_NO_RPMS_IN_BREW || "$rc" -eq $RET_NO_RPMS_IN_REPOS || "$rc" -eq $RET_EMPTY_REPOQUERY ]]; then
-        echo "Skipped. See 'download build' (or /prepare) logs for info." > SKIP_TEST
+        echo "Skipped. See 'download build' (or /prepare) logs for info." > ${TMT_PLAN_DATA:+${TMT_PLAN_DATA}/}SKIP_TEST
     else  # unknown error
         exit "$rc"
     fi
