@@ -2,11 +2,11 @@ summary: TMT/FMF plan for running the installability tests.
 description: Runs installability tests in Fedora CI — https://github.com/fedora-ci/installability-pipeline.
 
 provision:
-    how: virtual
+  how: virtual
 
 discover:
-    how: shell
-    tests:
+  how: shell
+  tests:
     - name: _prepare
       framework: shell
       test: bash prepare.sh
@@ -18,4 +18,4 @@ discover:
       result: custom
 
 execute:
-    how: tmt
+  how: tmt
