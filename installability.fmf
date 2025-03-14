@@ -1,6 +1,12 @@
 summary: TMT/FMF plan for running the installability tests.
 description: Runs installability tests in Fedora CI — https://github.com/fedora-ci/installability-pipeline.
 
+prepare:
+  - name: Install installability executer
+    how: install
+    copr: "@osci/mini-tps"
+    package: mini-tps
+
 discover:
   how: shell
   tests:

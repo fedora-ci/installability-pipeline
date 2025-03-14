@@ -9,11 +9,6 @@ set -e
 [ -z "$TASK_ID" ] && { echo "TASK_ID missing in the environment"; exit 1; }
 [ -z "$PROFILE_NAME" ] && { echo "PROFILE_NAME missing in the environment"; exit 1; }
 
-# install mini-tps
-dnf -y copr enable @osci/mini-tps
-dnf -y install mini-tps
-dnf -y copr disable @osci/mini-tps
-
 # make sure mini-tps can find Koji
 # TODO: can mini-tps RPM package provide this configuration automatically?
 mkdir -p /var/tmp/mini-tps/ /usr/local/libexec/mini-tps/
