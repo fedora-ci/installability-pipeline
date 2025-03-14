@@ -1,6 +1,11 @@
 summary: TMT/FMF plan for running the installability tests.
 description: Runs installability tests in Fedora CI — https://github.com/fedora-ci/installability-pipeline.
 
+environment:
+  # Make sure mini-tps can find Koji
+  BREWHUB: https://koji.fedoraproject.org/kojihub
+  BREWROOT: https://kojipkgs.fedoraproject.org
+
 prepare:
   - name: Install installability executer
     how: install
@@ -12,11 +17,11 @@ discover:
   tests:
     - name: _prepare
       framework: shell
-      test: bash prepare.sh
+      test: ./prepare.sh
       duration: 30m
     - name: installability
       framework: shell
-      test: /usr/local/libexec/mini-tps/installability_runner.sh --critical --skiplangpack --selinux=1 --repo=brew-$TASK_ID
+      test: ./installability_runner.sh --critical --skiplangpack --selinux=1 --repo=brew-$TASK_ID
       duration: 960m
       result: custom
 

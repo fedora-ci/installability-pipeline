@@ -13,8 +13,6 @@ get_result () {
 TESTRUN_ID="$(date +%H%M%S)"
 mkdir -p "${LOGS_DIR:=mtps-logs}"
 
-. /var/tmp/mini-tps/env
-
 if [[ -f SKIP_TEST ]]; then
   # The SKIP_TEST file contains a reason why the prepare.sh ended unexpectedly.
   # Copy it to a log file which can be parsed by generate-result-json
