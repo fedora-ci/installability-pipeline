@@ -15,11 +15,13 @@ prepare:
 discover:
   how: shell
   tests:
-    - name: _prepare
+    - name: prepare
+      order: 50
       framework: shell
       test: ./prepare.sh
       duration: 30m
     - name: installability
+      order: 60
       framework: shell
       test: ./installability_runner.sh --critical --skiplangpack --selinux=1 --repo=brew-$TASK_ID
       duration: 960m
