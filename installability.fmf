@@ -15,9 +15,9 @@ prepare:
   - name: Install mini-tps dependencies
     how: install
     package:
-      - getopt
-      - awk
-      - ps
+      - /usr/bin/getopt
+      - /usr/bin/awk
+      - /usr/bin/ps
 
 discover:
   how: shell
