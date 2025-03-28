@@ -34,6 +34,10 @@ else
           highrc="$thisrc"
       fi
   done
+  # Copy the mtps-logs to the actual log directory
+  if [[ -d mtps-logs ]]; then
+    cp mtps-logs/* ${LOGS_DIR}/
+  fi
   tmtresult="$(get_result $highrc)"
 fi
 
