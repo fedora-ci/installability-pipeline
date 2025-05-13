@@ -12,6 +12,13 @@ get_result () {
     echo "$result"
 }
 
+if [ -n "$TASK_ID" ]; then
+  repo="brew-$TASK_ID"
+else
+  copr_id=$(echo $PACKIT_COPR_PROJECT |	sed "s|/|-|")
+  repo="copr-$copr_id"
+fi
+
 TESTRUN_ID="$(date +%H%M%S)"
 LOGS_DIR=${LOGS_DIR:-${TMT_TEST_DATA}/mtps-logs}
 mkdir -p "${LOGS_DIR}"
@@ -26,7 +33,7 @@ if [[ -f ${TMT_PLAN_DATA}/SKIP_TEST ]]; then
 else
   highrc=0
   for method in "install" "update" "downgrade" "remove"; do
-      mtps-run-tests "$@" --test="$method";
+      mtps-run-tests "$@" --test="$method" --repo="$repo";
       thisrc=$?
       thisres="$(get_result $thisrc)"
       echo "$method result: $thisres (status code: $thisrc)"
