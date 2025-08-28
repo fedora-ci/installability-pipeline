@@ -41,6 +41,10 @@
       "profile_name": "fedora-44",
       "compose": "Fedora-Rawhide"
     },
+    "eln": {
+      "profile_name": "fedora-eln",
+      "compose": "Fedora-eln"
+    },
     "epel8": {
       "profile_name": "centos-stream-8",
       "compose": "CentOS-Stream-8"
