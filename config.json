@@ -41,6 +41,10 @@
       "profile_name": "fedora-44",
       "compose": "Fedora-Rawhide"
     },
+    "f45": {
+      "profile_name": "fedora-45",
+      "compose": "Fedora-Rawhide"
+    },
     "eln": {
       "profile_name": "fedora-eln",
       "compose": "Fedora-eln"
