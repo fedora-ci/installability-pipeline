@@ -27,6 +27,10 @@ discover:
       framework: shell
       test: ./prepare.sh
       duration: 30m
+    - name: enable_dnf5
+      framework: shell
+      test: bash enable_dnf5.sh
+      duration: 30m
     - name: installability
       order: 60
       framework: shell
