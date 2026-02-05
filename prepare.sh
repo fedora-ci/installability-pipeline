@@ -35,7 +35,12 @@ if [[ "$PROFILE_NAME" == centos-stream-* ]]; then
 
     CENTOS_STREAM_RELEASE=$(sed 's/centos-stream-//' <<< "$PROFILE_NAME")
     EPEL_RELEASE_PACKAGE_URL="https://dl.fedoraproject.org/pub/epel/epel-release-latest-$CENTOS_STREAM_RELEASE.noarch.rpm"
-    rpm -q epel-release && yum -y reinstall "$EPEL_RELEASE_PACKAGE_URL" || yum -y install "$EPEL_RELEASE_PACKAGE_URL"
+    if [[ "$CENTOS_STREAM_RELEASE" == "9" ]]; then
+        EPEL_NEXT_RELEASE_PACKAGE_URL="https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-$CENTOS_STREAM_RELEASE.noarch.rpm"
+        rpm -q epel-release && yum -y reinstall "$EPEL_RELEASE_PACKAGE_URL" "$EPEL_NEXT_RELEASE_PACKAGE_URL" || yum -y install "$EPEL_RELEASE_PACKAGE_URL" "$EPEL_NEXT_RELEASE_PACKAGE_URL"
+    else
+        rpm -q epel-release && yum -y reinstall "$EPEL_RELEASE_PACKAGE_URL" || yum -y install "$EPEL_RELEASE_PACKAGE_URL"
+    fi
 
     yum config-manager --enable crb
     yum config-manager --enable epel
