@@ -45,6 +45,9 @@
       "profile_name": "fedora-45",
       "compose": "Fedora-Rawhide"
     },
+    "rawhide": {
+      "compose": "Fedora-Rawhide"
+    },
     "eln": {
       "profile_name": "fedora-eln",
       "compose": "Fedora-eln"
@@ -57,8 +60,14 @@
       "profile_name": "centos-stream-9",
       "compose": "CentOS-Stream-9"
     },
+    "epel9-next": {
+      "compose": "CentOS-Stream-9"
+    },
     "epel10": {
       "profile_name": "centos-stream-10",
+      "compose": "CentOS-Stream-10"
+    },
+    "epel10.2": {
       "compose": "CentOS-Stream-10"
     }
   }
