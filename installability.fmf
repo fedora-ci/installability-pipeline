@@ -2,28 +2,11 @@
   summary: TMT/FMF plan for running the installability tests.
   description: Runs installability tests in Fedora CI — https://github.com/fedora-ci/installability-pipeline.
 
-  adjust:
-    when: dist-git-branch is not defined
-    environment:
-      # Make sure mini-tps can find Koji
-      BREWHUB: https://koji.fedoraproject.org/kojihub
-      BREWROOT: https://kojipkgs.fedoraproject.org
-
   prepare:
     - name: Install installability executer
       how: install
       copr: "@osci/mini-tps"
-      package: mini-tps
-      # TODO: These should be included in the mini-tps package
-    - name: Install mini-tps dependencies
-      when: dist-git-branch is not defined
-      how: install
-      package:
-        - /usr/bin/getopt
-        - /usr/bin/awk
-        - /usr/bin/ps
     - how: shell
-      when: dist-git-branch is defined
       script: |
         echo "DIST_GIT_BRANCH=$@{dist-git-branch}" >> $TMT_PLAN_ENVIRONMENT_FILE
     # TODO: This should be handled by testing-farm profiles
@@ -44,23 +27,7 @@
         fi
 
   discover:
-    - how: shell
-      # TODO: Remove this approach
-      when: dist-git-branch is not defined
-      tests:
-        - name: prepare
-          order: 50
-          framework: shell
-          test: ./prepare.sh
-          duration: 30m
-        - name: installability
-          order: 60
-          framework: shell
-          test: ./installability_runner.sh --critical --skiplangpack --selinux=1 --repo=brew-$TASK_ID
-          duration: 960m
-          result: custom
-    - how: fmf
-      when: dist-git-branch is defined
+    how: fmf
 
   execute:
     how: tmt
