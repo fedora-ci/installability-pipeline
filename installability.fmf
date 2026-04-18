@@ -7,10 +7,15 @@ environment:
   BREWROOT: https://kojipkgs.fedoraproject.org
 
 prepare:
+  - name: Do not install the default testing-farm artifacts
+    how: install
+    exclude:
+      - ".*"
   - name: Install installability executer
     how: install
     copr: "@osci/mini-tps"
     package: mini-tps
+    exclude: [ ]
     # TODO: These should be included in the mini-tps package
   - name: Install mini-tps dependencies
     how: install
@@ -18,6 +23,7 @@ prepare:
       - /usr/bin/getopt
       - /usr/bin/awk
       - /usr/bin/ps
+    exclude: [ ]
 
 discover:
   how: shell
@@ -30,7 +36,7 @@ discover:
     - name: installability
       order: 60
       framework: shell
-      test: ./installability_runner.sh --critical --skiplangpack --selinux=1 --repo=brew-$TASK_ID
+      test: ./installability_runner.sh --critical --skiplangpack --selinux=1
       duration: 960m
       result: custom
 
