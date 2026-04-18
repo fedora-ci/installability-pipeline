@@ -1,38 +1,70 @@
-summary: TMT/FMF plan for running the installability tests.
-description: Runs installability tests in Fedora CI — https://github.com/fedora-ci/installability-pipeline.
+/plan:
+  summary: TMT/FMF plan for running the installability tests.
+  description: Runs installability tests in Fedora CI — https://github.com/fedora-ci/installability-pipeline.
 
-environment:
-  # Make sure mini-tps can find Koji
-  BREWHUB: https://koji.fedoraproject.org/kojihub
-  BREWROOT: https://kojipkgs.fedoraproject.org
+  prepare:
+    - name: Install installability executer
+      how: install
+      copr: "@osci/mini-tps"
+    - how: shell
+      script: |
+        echo "DIST_GIT_BRANCH=$@{dist-git-branch}" >> $TMT_PLAN_ENVIRONMENT_FILE
+    # TODO: This should be handled by testing-farm profiles
+    - name: Enable relevant epel branches
+      when: dist-git-branch ~ epel
+      script: |
+        dnf config-manager --set-enabled crb
+        if [[ "$@{dist-git-branch}" == "epel9" || "$@{dist-git-branch}" == "epel8" ]]; then
+          # install only epel
+          dnf --setopt=install_weak_deps=False install -y epel-next-release
+        elif [[ "$@{dist-git-branch}" == "epel9-next" ]]; then
+          # install only epel9-next
+          dnf install -y epel-next-release
+        else
+          # No need to care about epel/epel-next divergence
+          # Note that this does not properly handle epel10.x
+          dnf install -y epel-release
+        fi
 
-prepare:
-  - name: Install installability executer
-    how: install
-    copr: "@osci/mini-tps"
-    package: mini-tps
-    # TODO: These should be included in the mini-tps package
-  - name: Install mini-tps dependencies
-    how: install
-    package:
+  discover:
+    how: fmf
+
+  execute:
+    how: tmt
+
+
+/steps:
+  /prepare:
+    summary: Prepare the environment for installabilitiy
+    duration: 30m
+    order: 50
+    test: |
+      if [[ -n "$BODHI_UPDATE_ID" ]]; then
+        ./prepare.py bodhi-update $BODHI_UPDATE_ID
+      elif [[ -n "$KOJI_TASK_ID" ]]; then
+        ./prepare.py koji-task $KOJI_TASK_ID
+      else
+        echo "Could not determine how to prepare the repo"
+        exit 1
+      fi
+    require:
+      - bodhi-client
+      - koji
+      - createrepo
+  /run_installability:
+    summary: Run the actual installability
+    order: 60
+    duration: 960m
+    test: ./run_installability.py
+    result: custom
+    require:
+      - python3-ruamel-yaml
+      - mini-tps
+      # TODO: These should be included in the mini-tps package
       - /usr/bin/getopt
       - /usr/bin/awk
       - /usr/bin/ps
-
-discover:
-  how: shell
-  tests:
-    - name: prepare
-      order: 50
-      framework: shell
-      test: ./prepare.sh
-      duration: 30m
-    - name: installability
-      order: 60
-      framework: shell
-      test: ./installability_runner.sh --critical --skiplangpack --selinux=1 --repo=brew-$TASK_ID
-      duration: 960m
-      result: custom
-
-execute:
-  how: tmt
+    adjust:
+      - when: dist-git-branch ~ epel9
+        require+:
+          - python3-typing-extensions

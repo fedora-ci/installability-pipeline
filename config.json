@@ -1,64 +1,33 @@
 {
-  "ignore_list": ["selinux-policy"],
   "profiles": {
-    "f35": {
-      "profile_name": "fedora-35",
-      "compose": "Fedora-35"
-    },
-    "f36": {
-      "profile_name": "fedora-36",
-      "compose": "Fedora-36"
-    },
-    "f37": {
-      "profile_name": "fedora-37",
-      "compose": "Fedora-37"
-    },
-    "f38": {
-      "profile_name": "fedora-38",
-      "compose": "Fedora-38"
-    },
-    "f39": {
-      "profile_name": "fedora-39",
-      "compose": "Fedora-39"
-    },
-    "f40": {
-      "profile_name": "fedora-40",
-      "compose": "Fedora-40"
-    },
-    "f41": {
-      "profile_name": "fedora-41",
-      "compose": "Fedora-41"
-    },
     "f42": {
-      "profile_name": "fedora-42",
       "compose": "Fedora-42"
     },
     "f43": {
-      "profile_name": "fedora-43",
       "compose": "Fedora-43"
     },
     "f44": {
-      "profile_name": "fedora-44",
       "compose": "Fedora-44"
     },
-    "f45": {
-      "profile_name": "fedora-45",
+    "rawhide": {
       "compose": "Fedora-Rawhide"
     },
     "eln": {
-      "profile_name": "fedora-eln",
       "compose": "Fedora-eln"
     },
     "epel8": {
-      "profile_name": "centos-stream-8",
       "compose": "CentOS-Stream-8"
     },
     "epel9": {
-      "profile_name": "centos-stream-9",
+      "compose": "CentOS-Stream-9"
+    },
+    "epel9-next": {
       "compose": "CentOS-Stream-9"
     },
     "epel10": {
-      "profile_name": "centos-stream-10",
+      "compose": "CentOS-Stream-10"
+    },
+    "epel10.2": {
       "compose": "CentOS-Stream-10"
     }
   }
