@@ -2,7 +2,7 @@
 
 This repository contains the definition of the Installability CI pipeline.
 
-This pipeline tries to install, update, downgrade and remove RPM packages and publishes results via [CI Messages](https://pagure.io/fedora-ci/messages).
+This pipeline tries to install, update and remove RPM packages and publishes results via [CI Messages](https://pagure.io/fedora-ci/messages).
 
 ## Test definition
 
