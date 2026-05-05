@@ -9,7 +9,7 @@ environment:
 prepare:
   - name: Install installability executer
     how: install
-    copr: "@osci/mini-tps"
+    copr: "jpopelka/fedora-ci-mini-tps-104"
     package: mini-tps
     # TODO: These should be included in the mini-tps package
   - name: Install mini-tps dependencies
