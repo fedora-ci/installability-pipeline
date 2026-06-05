@@ -132,6 +132,7 @@ pipeline {
                                     tmt: [
                                         context: [
                                             "dist-git-branch": params.DIST_GIT_BRANCH,
+                                            "arch": "x86_64",
                                         ]
                                     ]
                                 ]

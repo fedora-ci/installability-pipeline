@@ -127,7 +127,10 @@ def bodhi_update(args: argparse.Namespace, repo_path: Path) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--arch", default=None)
+    parser.add_argument(
+        "--arch",
+        default=os.environ.get("ARCH"),
+    )
     parser.add_argument(
         "--workdir",
         type=Path,
