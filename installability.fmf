@@ -34,7 +34,7 @@
         dnf config-manager --set-enabled crb
         if [[ "$@{dist-git-branch}" == "epel9" || "$@{dist-git-branch}" == "epel8" ]]; then
           # install only epel
-          dnf --setopt=install_weak_deps=False install -y epel-next-release
+          dnf --setopt=install_weak_deps=False install -y epel-release
         elif [[ "$@{dist-git-branch}" == "epel9-next" ]]; then
           # install only epel9-next
           dnf install -y epel-next-release
