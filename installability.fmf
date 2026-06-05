@@ -27,6 +27,9 @@
       script: |
         echo "DIST_GIT_BRANCH=$@{dist-git-branch}" >> $TMT_PLAN_ENVIRONMENT_FILE
         echo "ARCH=$@{arch}" >> $TMT_PLAN_ENVIRONMENT_FILE
+        # mini-tps expects PROFILE_NAME to be defined, but it is only used to check for rhel-6
+        # https://github.com/fedora-ci/mini-tps/pull/104
+        echo "PROFILE_NAME=$@{dist-git-branch}" >> $TMT_PLAN_ENVIRONMENT_FILE
     # TODO: This should be handled by testing-farm profiles
     - name: Enable relevant epel branches
       when: dist-git-branch ~ epel
