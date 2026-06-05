@@ -95,6 +95,7 @@ def format_duration(duration: datetime.timedelta) -> str:
 
 
 def main(args: argparse.Namespace) -> None:
+    args.workdir: Path
     logs_dir: Path = args.workdir / MTPS_LOGS_DIR
     logs_dir.mkdir(exist_ok=True)
     os.environ["LOGS_DIR"] = str(logs_dir)
@@ -128,7 +129,6 @@ def main(args: argparse.Namespace) -> None:
         else:
             results[f"/{method}"]["result"] = "pass"
         results[f"/{method}"]["duration"] = format_duration(duration)
-        args.workdir: Path
         (args.workdir / f"output-{method}.txt").write_text(res.stdout)
         results[f"/{method}"]["log"].extend(
             str(log_path.relative_to(args.workdir))
