@@ -9,7 +9,7 @@ retry (10) {
 
 def pipelineMetadata = [
     pipelineName: 'installability',
-    pipelineDescription: 'Try to install, upgrade, downgrade and remove RPM packages.',
+    pipelineDescription: 'Try to install, upgrade and remove RPM packages.',
     testCategory: 'functional',
     testType: 'installability',
     maintainer: 'Fedora CI',

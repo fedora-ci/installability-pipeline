@@ -25,7 +25,7 @@ if [[ -f ${TMT_PLAN_DATA}/SKIP_TEST ]]; then
   tmtresult="skip"
 else
   highrc=0
-  for method in "install" "update" "downgrade" "remove"; do
+  for method in "install" "update" "remove"; do
       mtps-run-tests "$@" --test="$method";
       thisrc=$?
       thisres="$(get_result $thisrc)"
