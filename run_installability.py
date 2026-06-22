@@ -55,30 +55,31 @@ class Result(TypedDict):
     result: Literal["pass", "fail", "info", "warn", "error", "skip", "pending"]
     log: list[str]
     duration: NotRequired[str]
+    subresult: NotRequired[list[Result]]
 
 
-results = {
-    f"/{method}": Result(
-        name=f"/{method}",
-        result="pending",
-        log=[
-            f"output-{method}.txt",
-        ],
-    )
-    for method in TEST_CASES
-}
-results["/"] = Result(
+result = Result(
     name="/",
     result="pending",
     log=[
         "../output.txt",
+    ],
+    subresult=[
+        Result(
+            name=method,
+            result="pending",
+            log=[
+                f"output-{method}.txt",
+            ],
+        )
+        for method in TEST_CASES
     ],
 )
 
 
 def update_results(workdir: Path) -> None:
     with (workdir / "results.yaml").open("w") as f:
-        yaml.dump(list(results.values()), f)
+        yaml.dump([result], f)
 
 def format_duration(duration: datetime.timedelta) -> str:
     """
@@ -103,6 +104,7 @@ def main(args: argparse.Namespace) -> None:
     update_results(args.workdir)
     failed = False
     for method in TEST_CASES:
+        subresult = next(sr for sr in result["subresult"] if sr["name"] == method)
         logger.info(f"Running mtps-run-tests: {method}")
         mtps_args = [
             f"--repo={REPO_NAME}",
@@ -125,21 +127,21 @@ def main(args: argparse.Namespace) -> None:
         # Report the subresult
         if res.returncode > 0:
             failed = True
-            results[f"/{method}"]["result"] = "fail"
+            subresult["result"] = "fail"
         else:
-            results[f"/{method}"]["result"] = "pass"
-        results[f"/{method}"]["duration"] = format_duration(duration)
+            subresult["result"] = "pass"
+        subresult["duration"] = format_duration(duration)
         (args.workdir / f"output-{method}.txt").write_text(res.stdout)
-        results[f"/{method}"]["log"].extend(
+        subresult["log"].extend(
             str(log_path.relative_to(args.workdir))
             for log_path in logs_dir.glob(f"*-*-{method}-*.log")
         )
         update_results(args.workdir)
     # Report the overall results
     if failed:
-        results["/"]["result"] = "fail"
+        result["result"] = "fail"
     else:
-        results["/"]["result"] = "pass"
+        result["result"] = "pass"
     update_results(args.workdir)
     logger.info("Generating results.json")
     results_json = subprocess.run(
@@ -150,7 +152,7 @@ def main(args: argparse.Namespace) -> None:
     if results_json.returncode == 0:
         (args.workdir / "result.json").write_text(results_json.stdout)
         shutil.copy(MTPS_VIEWER_HTML, args.workdir / "viewer.html")
-        results["/"]["log"].extend(["viewer.html", "result.json"])
+        result["log"].extend(["viewer.html", "result.json"])
         update_results(args.workdir)
 
     logger.info("Finished running mtps-run-tests")
