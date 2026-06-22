@@ -120,7 +120,7 @@ def main(args: argparse.Namespace) -> None:
     os.environ["LOGS_DIR"] = str(logs_dir)
 
     update_results(args.workdir)
-    failed = False
+    overall_result = Result.PENDING
     for method in TEST_CASES:
         subresult = next(sr for sr in result["subresult"] if sr["name"] == method)
         logger.info(f"Running mtps-run-tests: {method}")
@@ -133,6 +133,9 @@ def main(args: argparse.Namespace) -> None:
         if method not in ("downgrade",):
             mtps_args.append("--critical")
         start = datetime.datetime.now(datetime.timezone.utc)
+        # TODO: Switch to using `mtps-pkg-test` directly?
+        #  how do we handle selinux check in that case though?
+        #  https://github.com/teemtee/tmt/issues/5006
         res = subprocess.run(
             [
                 "mtps-run-tests",
@@ -143,11 +146,19 @@ def main(args: argparse.Namespace) -> None:
         )
         duration = datetime.datetime.now(datetime.timezone.utc) - start
         # Report the subresult
-        if res.returncode > 0:
-            failed = True
+        # Using the
+        if any(logs_dir.glob(f"FAIL-*-{method}-*.log")):
             subresult["result"] = Result.FAIL
-        else:
+        elif any(logs_dir.glob(f"WARN-*-{method}-*.log")):
+            subresult["result"] = Result.WARN
+        elif any(logs_dir.glob(f"SKIP-*-{method}-*.log")):
+            subresult["result"] = Result.SKIP
+        elif any(logs_dir.glob(f"PASS-*-{method}-*.log")):
             subresult["result"] = Result.PASS
+        else:
+            logger.warning("Could not detect the results from log files")
+            subresult["result"] = Result.WARN
+        overall_result = max(overall_result, subresult["result"])
         subresult["duration"] = format_duration(duration)
         (args.workdir / f"output-{method}.txt").write_text(res.stdout)
         subresult["log"].extend(
@@ -156,10 +167,7 @@ def main(args: argparse.Namespace) -> None:
         )
         update_results(args.workdir)
     # Report the overall results
-    if failed:
-        result["result"] = Result.FAIL
-    else:
-        result["result"] = Result.PASS
+    result["result"] = overall_result
     update_results(args.workdir)
     logger.info("Generating results.json")
     results_json = subprocess.run(
