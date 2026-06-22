@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import argparse
+import enum
 import logging
 import os
 import shutil
@@ -23,7 +24,7 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired
 
-from ruamel.yaml import YAML
+from ruamel.yaml import YAML, Representer
 
 logging.basicConfig(level="INFO")
 logger = logging.getLogger(Path(__file__).name)
@@ -44,7 +45,24 @@ TEST_CASES = [
 can_selinux = bool(which("getenforce"))
 
 
-class Result(TypedDict):
+@yaml.register_class
+class Result(enum.IntEnum):
+    """
+    Results are
+    """
+    PENDING = 0
+    SKIP = 1
+    PASS = 2
+    INFO = 3
+    WARN = 4
+    FAIL = 5
+    ERROR = 6
+
+    @classmethod
+    def to_yaml(cls, representer: Representer, node: Result) -> str:
+        return representer.represent_str(node.name.lower())
+
+class TmtResult(TypedDict):
     """
     Subset of tmt result that we will use.
 
@@ -52,22 +70,22 @@ class Result(TypedDict):
     """
 
     name: str
-    result: Literal["pass", "fail", "info", "warn", "error", "skip", "pending"]
+    result: Result
     log: list[str]
     duration: NotRequired[str]
-    subresult: NotRequired[list[Result]]
+    subresult: NotRequired[list[TmtResult]]
 
 
-result = Result(
+result = TmtResult(
     name="/",
-    result="pending",
+    result=Result.PENDING,
     log=[
         "../output.txt",
     ],
     subresult=[
-        Result(
+        TmtResult(
             name=method,
-            result="pending",
+            result=Result.PENDING,
             log=[
                 f"output-{method}.txt",
             ],
@@ -127,9 +145,9 @@ def main(args: argparse.Namespace) -> None:
         # Report the subresult
         if res.returncode > 0:
             failed = True
-            subresult["result"] = "fail"
+            subresult["result"] = Result.FAIL
         else:
-            subresult["result"] = "pass"
+            subresult["result"] = Result.PASS
         subresult["duration"] = format_duration(duration)
         (args.workdir / f"output-{method}.txt").write_text(res.stdout)
         subresult["log"].extend(
@@ -139,9 +157,9 @@ def main(args: argparse.Namespace) -> None:
         update_results(args.workdir)
     # Report the overall results
     if failed:
-        result["result"] = "fail"
+        result["result"] = Result.FAIL
     else:
-        result["result"] = "pass"
+        result["result"] = Result.PASS
     update_results(args.workdir)
     logger.info("Generating results.json")
     results_json = subprocess.run(
