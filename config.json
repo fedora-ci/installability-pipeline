@@ -9,6 +9,9 @@
     "f44": {
       "compose": "Fedora-44"
     },
+    "f45": {
+      "compose": "Fedora-Rawhide"
+    },
     "rawhide": {
       "compose": "Fedora-Rawhide"
     },
