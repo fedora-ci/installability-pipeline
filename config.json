@@ -10,7 +10,7 @@
       "compose": "Fedora-44"
     },
     "f45": {
-      "compose": "Fedora-Rawhide"
+      "compose": "Fedora-45"
     },
     "rawhide": {
       "compose": "Fedora-Rawhide"
