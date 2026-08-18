@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import argparse
+import enum
 import logging
 import os
 import shutil
@@ -23,7 +24,7 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired
 
-from ruamel.yaml import YAML
+from ruamel.yaml import YAML, Representer
 
 logging.basicConfig(level="INFO")
 logger = logging.getLogger(Path(__file__).name)
@@ -44,7 +45,24 @@ TEST_CASES = [
 can_selinux = bool(which("getenforce"))
 
 
-class Result(TypedDict):
+@yaml.register_class
+class Result(enum.IntEnum):
+    """
+    Results are
+    """
+    PENDING = 0
+    SKIP = 1
+    PASS = 2
+    INFO = 3
+    WARN = 4
+    FAIL = 5
+    ERROR = 6
+
+    @classmethod
+    def to_yaml(cls, representer: Representer, node: Result) -> str:
+        return representer.represent_str(node.name.lower())
+
+class TmtResult(TypedDict):
     """
     Subset of tmt result that we will use.
 
@@ -52,33 +70,34 @@ class Result(TypedDict):
     """
 
     name: str
-    result: Literal["pass", "fail", "info", "warn", "error", "skip", "pending"]
+    result: Result
     log: list[str]
     duration: NotRequired[str]
+    subresult: NotRequired[list[TmtResult]]
 
 
-results = {
-    f"/{method}": Result(
-        name=f"/{method}",
-        result="pending",
-        log=[
-            f"output-{method}.txt",
-        ],
-    )
-    for method in TEST_CASES
-}
-results["/"] = Result(
+result = TmtResult(
     name="/",
-    result="pending",
+    result=Result.PENDING,
     log=[
         "../output.txt",
+    ],
+    subresult=[
+        TmtResult(
+            name=method,
+            result=Result.PENDING,
+            log=[
+                f"output-{method}.txt",
+            ],
+        )
+        for method in TEST_CASES
     ],
 )
 
 
 def update_results(workdir: Path) -> None:
     with (workdir / "results.yaml").open("w") as f:
-        yaml.dump(list(results.values()), f)
+        yaml.dump([result], f)
 
 def format_duration(duration: datetime.timedelta) -> str:
     """
@@ -101,8 +120,9 @@ def main(args: argparse.Namespace) -> None:
     os.environ["LOGS_DIR"] = str(logs_dir)
 
     update_results(args.workdir)
-    failed = False
+    overall_result = Result.PENDING
     for method in TEST_CASES:
+        subresult = next(sr for sr in result["subresult"] if sr["name"] == method)
         logger.info(f"Running mtps-run-tests: {method}")
         mtps_args = [
             f"--repo={REPO_NAME}",
@@ -113,6 +133,9 @@ def main(args: argparse.Namespace) -> None:
         if method not in ("downgrade",):
             mtps_args.append("--critical")
         start = datetime.datetime.now(datetime.timezone.utc)
+        # TODO: Switch to using `mtps-pkg-test` directly?
+        #  how do we handle selinux check in that case though?
+        #  https://github.com/teemtee/tmt/issues/5006
         res = subprocess.run(
             [
                 "mtps-run-tests",
@@ -123,23 +146,28 @@ def main(args: argparse.Namespace) -> None:
         )
         duration = datetime.datetime.now(datetime.timezone.utc) - start
         # Report the subresult
-        if res.returncode > 0:
-            failed = True
-            results[f"/{method}"]["result"] = "fail"
+        # Using the
+        if any(logs_dir.glob(f"FAIL-*-{method}-*.log")):
+            subresult["result"] = Result.FAIL
+        elif any(logs_dir.glob(f"WARN-*-{method}-*.log")):
+            subresult["result"] = Result.WARN
+        elif any(logs_dir.glob(f"SKIP-*-{method}-*.log")):
+            subresult["result"] = Result.SKIP
+        elif any(logs_dir.glob(f"PASS-*-{method}-*.log")):
+            subresult["result"] = Result.PASS
         else:
-            results[f"/{method}"]["result"] = "pass"
-        results[f"/{method}"]["duration"] = format_duration(duration)
+            logger.warning("Could not detect the results from log files")
+            subresult["result"] = Result.WARN
+        overall_result = max(overall_result, subresult["result"])
+        subresult["duration"] = format_duration(duration)
         (args.workdir / f"output-{method}.txt").write_text(res.stdout)
-        results[f"/{method}"]["log"].extend(
+        subresult["log"].extend(
             str(log_path.relative_to(args.workdir))
             for log_path in logs_dir.glob(f"*-*-{method}-*.log")
         )
         update_results(args.workdir)
     # Report the overall results
-    if failed:
-        results["/"]["result"] = "fail"
-    else:
-        results["/"]["result"] = "pass"
+    result["result"] = overall_result
     update_results(args.workdir)
     logger.info("Generating results.json")
     results_json = subprocess.run(
@@ -150,7 +178,7 @@ def main(args: argparse.Namespace) -> None:
     if results_json.returncode == 0:
         (args.workdir / "result.json").write_text(results_json.stdout)
         shutil.copy(MTPS_VIEWER_HTML, args.workdir / "viewer.html")
-        results["/"]["log"].extend(["viewer.html", "result.json"])
+        result["log"] = ["viewer.html", "result.json", *result["log"]]
         update_results(args.workdir)
 
     logger.info("Finished running mtps-run-tests")
