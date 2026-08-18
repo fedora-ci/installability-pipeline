@@ -178,7 +178,7 @@ def main(args: argparse.Namespace) -> None:
     if results_json.returncode == 0:
         (args.workdir / "result.json").write_text(results_json.stdout)
         shutil.copy(MTPS_VIEWER_HTML, args.workdir / "viewer.html")
-        result["log"].extend(["viewer.html", "result.json"])
+        result["log"] = ["viewer.html", "result.json", *result["log"]]
         update_results(args.workdir)
 
     logger.info("Finished running mtps-run-tests")
