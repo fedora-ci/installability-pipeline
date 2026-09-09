@@ -52,6 +52,16 @@
       - bodhi-client
       - koji
       - createrepo
+  /setup_installability:
+    description: >
+      Make sure installability does not delete itself or the core dependencies
+    order: 59
+    test: |
+      cat > /etc/dnf/protected.d/mini-tps-actual.conf <<EOF
+      mini-tps
+      python3-ruamel-yaml
+      python3
+      EOF
   /run_installability:
     summary: Run the actual installability
     order: 60
@@ -69,3 +79,7 @@
       - when: dist-git-branch ~ epel9
         require+:
           - python3-typing-extensions
+  /teardown_installability:
+    order: 61
+    test: |
+      rm -f /etc/dnf/protected.d/mini-tps-actual.conf
