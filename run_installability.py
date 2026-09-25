@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import argparse
+import functools
 import logging
 import os
 import shutil
@@ -75,9 +76,14 @@ results["/"] = Result(
     ],
 )
 
+# TODO: make this simpler in upstream utils
+@functools.cache
+def tmt_test_data() -> Path:
+    return Path(os.environ["TMT_TEST_DATA"])
 
-def update_results(workdir: Path) -> None:
-    with (workdir / "results.yaml").open("w") as f:
+
+def update_results() -> None:
+    with (tmt_test_data() / "results.yaml").open("w") as f:
         yaml.dump(list(results.values()), f)
 
 def format_duration(duration: datetime.timedelta) -> str:
@@ -95,12 +101,12 @@ def format_duration(duration: datetime.timedelta) -> str:
 
 
 def main(args: argparse.Namespace) -> None:
-    args.workdir: Path
-    logs_dir: Path = args.workdir / MTPS_LOGS_DIR
+    workdir = tmt_test_data()
+    logs_dir = workdir / MTPS_LOGS_DIR
     logs_dir.mkdir(exist_ok=True)
     os.environ["LOGS_DIR"] = str(logs_dir)
 
-    update_results(args.workdir)
+    update_results()
     failed = False
     for method in TEST_CASES:
         logger.info(f"Running mtps-run-tests: {method}")
@@ -129,18 +135,18 @@ def main(args: argparse.Namespace) -> None:
         else:
             results[f"/{method}"]["result"] = "pass"
         results[f"/{method}"]["duration"] = format_duration(duration)
-        (args.workdir / f"output-{method}.txt").write_text(res.stdout)
+        (workdir / f"output-{method}.txt").write_text(res.stdout)
         results[f"/{method}"]["log"].extend(
-            str(log_path.relative_to(args.workdir))
+            str(log_path.relative_to(workdir))
             for log_path in logs_dir.glob(f"*-*-{method}-*.log")
         )
-        update_results(args.workdir)
+        update_results()
     # Report the overall results
     if failed:
         results["/"]["result"] = "fail"
     else:
         results["/"]["result"] = "pass"
-    update_results(args.workdir)
+    update_results()
     logger.info("Generating results.json")
     results_json = subprocess.run(
         [MTPS_LIBEXEC / "viewer/generate-result-json", logs_dir],
@@ -148,10 +154,10 @@ def main(args: argparse.Namespace) -> None:
         stdout=subprocess.PIPE,
     )
     if results_json.returncode == 0:
-        (args.workdir / "result.json").write_text(results_json.stdout)
-        shutil.copy(MTPS_VIEWER_HTML, args.workdir / "viewer.html")
+        (workdir / "result.json").write_text(results_json.stdout)
+        shutil.copy(MTPS_VIEWER_HTML, workdir / "viewer.html")
         results["/"]["log"].extend(["viewer.html", "result.json"])
-        update_results(args.workdir)
+        update_results()
 
     logger.info("Finished running mtps-run-tests")
 
@@ -159,11 +165,6 @@ def main(args: argparse.Namespace) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Actually run installability (mtps-run-tests)"
-    )
-    parser.add_argument(
-        "--workdir",
-        type=Path,
-        default=os.environ.get("TMT_TEST_DATA", "."),
     )
 
     args = parser.parse_args()
