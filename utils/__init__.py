@@ -1,11 +1,12 @@
+from __future__ import annotations
+
 import functools
 import logging
-import re
-import sys
-import subprocess
-import tomllib
-import tempfile
 import os
+import re
+import subprocess
+import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -36,13 +37,18 @@ def get_workdir() -> Path:
     """
     Get or generate a temporary workdir used across tests.
 
-    We do not expect any reboot in these tests, so we can use a ``/tmp`` path.
     Avoid using paths like ``TMT_PLAN_DATA`` because we do not want these to be
     synced back to testing-farm artifact storage.
+
+    We default to ``/var/tmp`` since the default ``/tmp`` may not have enough
+    storage. The user would be responsible for sanitizing the workdir in this case.
     """
     workdir = os.environ.get("WORKDIR")
     if not workdir:
-        workdir = tempfile.mkdtemp(prefix="tmt-test-workdir-")
+        workdir = tempfile.mkdtemp(
+            prefix="tmt-test-workdir-",
+            dir=os.environ.get("TMPDIR", "/var/tmp"),
+        )
         save_env("WORKDIR", workdir)
     logger.info(f"Temporary workdir: {workdir}")
     return Path(workdir)
@@ -50,6 +56,11 @@ def get_workdir() -> Path:
 
 def get_config(dist_git_path: Path, section: str) -> dict[str, Any] | None:
     from ruamel.yaml import YAML
+
+    if sys.version_info < (3, 11):
+        import tomli as tomllib
+    else:
+        import tomllib
 
     for ci_file_name in CI_CONFIG_FILES:
         ci_file = dist_git_path / ci_file_name
